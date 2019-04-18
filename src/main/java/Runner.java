@@ -29,6 +29,8 @@ class Runner {
 
             TravelingThiefProblem problem = Util.readProblem(is);
             problem.name = instance;
+//            System.out.println("Hello World");
+//            System.out.println(Arrays.deepToString(problem.coordinates));
 
             // number of solutions that will be finally necessary for submission - not used here
             int numOfSolutions = Competition.numberOfSolutions(problem);
