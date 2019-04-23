@@ -35,20 +35,21 @@ public class AntColony {
     }
 
     public Solution solve() {
-        List<Ant> ants = new ArrayList<Ant>(numAnts);
-        for (int i = 0; i < numAnts; i++) {
-            ants.set(i, new Ant(problem.numOfItems, problem.numOfCities));
-        }
         initializePheromones();
-
-
         for (int i = 0; i < maxIterations; i++) {
+            // New ants for each iteration, pheromones remain
+            List<Ant> ants = new ArrayList<Ant>(numAnts);
+            for (int j = 0; j < numAnts; i++) {
+                ants.set(j, new Ant(problem.numOfItems, problem.numOfCities));
+            }
+
+            // Each ant completes tour
             for (int j = 0; j < problem.numOfCities; j++) {
                 for (Ant ant : ants) {
                     antStep(ant);
                 }
             }
-            // TODO: Global pheromone update
+            globalCityPheromoneUpdate(ants);
         }
 
         return null;
@@ -70,8 +71,13 @@ public class AntColony {
         // TODO: Item pheromone update
     }
 
-    private double tauZero() {
+    private double cityTauZero() {
         return (double) 1 / this.problem.numOfCities;
+    }
+
+    private double cityDeltaTau() {
+        // TODO: choose what to put here (something based on fitness)
+        return 1;
     }
 
     private void initializePheromones() {
@@ -81,37 +87,47 @@ public class AntColony {
         // Initialize uniform pheromones
         cityPheromones = new double[numOfCities][numOfCities];
         for (double[] row : cityPheromones) {
-            Arrays.fill(row, tauZero());
+            Arrays.fill(row, cityTauZero());
         }
 
         itemPheromones = new double[numOfItems];
-        Arrays.fill(itemPheromones, tauZero());
+        Arrays.fill(itemPheromones, cityTauZero());
     }
 
     private void localCityPheromoneUpdate(int currentCity, int nextCity) {
-        cityPheromones[currentCity][nextCity] = (1 - phi) * cityPheromones[currentCity][nextCity] + phi * tauZero();
+        cityPheromones[currentCity][nextCity] = (1 - phi) * cityPheromones[currentCity][nextCity] + phi * cityTauZero();
     }
 
     private void globalCityPheromoneUpdate(List<Ant> ants) {
-        // TODO: identify best ant and update pheromones accordingly
+        // TODO: identify best ant (fitness?)
+        Ant bestAnt = ants.get(0);
+        for (int i = 0; i < problem.numOfCities - 1; i++) {
+            int from = bestAnt.pi.get(i);
+            int to = bestAnt.pi.get(i + 1);
+            cityPheromones[from][to] = (1 - rho) * cityPheromones[from][to] + rho * cityDeltaTau();
+        }
+        // Add best value evaporation as with sudoku?
+        // There is no global evaporation of pheromone in ACS, might want to add, again just like sudoku?
     }
 
     private int weightedCityChoice(Ant ant) {
-        // TODO: use alpha and beta parameters for making this choice
-        double[] pheromones = cityPheromones[ant.currentCity];
-        for (int i = 0; i < pheromones.length; i++) {
-            if (ant.visitedCities.get(i)) {
-                pheromones[i] = 0;
+        double[] probabilities = new double[problem.numOfCities];
+        for (int i = 0; i < problem.numOfCities; i++) {
+            if (!ant.visitedCities.get(i)) {
+                // TODO: distance "changes" based on current weight?
+                double distance = problem.euclideanDistance(ant.currentCity, i);
+                probabilities[i] = Math.pow(cityPheromones[ant.currentCity][i], alpha) * Math.pow(1 / distance, beta);
             }
         }
+
         double totalWeight = 0.0d;
-        for (double pheromone : pheromones) {
-            totalWeight += pheromone;
+        for (double prob : probabilities) {
+            totalWeight += prob;
         }
         int randomIndex = -1;
         double random = Math.random() * totalWeight;
-        for (int i = 0; i < pheromones.length; i++) {
-            random -= pheromones[i];
+        for (int i = 0; i < problem.numOfCities; i++) {
+            random -= probabilities[i];
             if (random <= 0.0d) {
                 randomIndex = i;
                 break;
@@ -119,4 +135,5 @@ public class AntColony {
         }
         return randomIndex;
     }
+
 }
