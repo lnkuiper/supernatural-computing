@@ -8,100 +8,99 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class AntColony implements Algorithm{
+public class AntColony {
 
-    private int maxNumOfTrials = 100;
+    private TravelingThiefProblem problem;
+
+    // Model parameters
+    private int maxIterations = 1000;
     private int numAnts = 10;
     private double alpha = 0.5;
     private double beta = 0.5;
     private double rho = 0.9;
+    private double phi = 0.1;
 
-    /*  We need to define:
-        Ants (list of matrices)
-        Global pheromone matrix
-        List of local pheromone matrices
+    // Model weights
+    private double[][] cityPheromones;
+    private double[] itemPheromones;
 
-        Pheromone update methods (global & local)
-
-     */
-
-    private TravelingThiefProblem problem;
-
-    private double[][] globalCityPheromones;
-    private ArrayList<double[][]> localCityPheromones;
-
-    private double[] globalItemPheromones;
-    private ArrayList<double[]> localItemPheromones;
-
-    public AntColony(int numberOfTrials, int numAnts, double alpha, double beta, double rho) {
-        this.maxNumOfTrials = numberOfTrials;
+    public AntColony(TravelingThiefProblem problem, int maxIterations, int numAnts, double alpha, double beta, double rho, double phi) {
+        this.problem = problem;
+        this.maxIterations = maxIterations;
         this.numAnts = numAnts;
         this.alpha = alpha;
         this.beta = beta;
         this.rho = rho;
+        this.phi = phi;
     }
 
-    @Override
-    public List<Solution> solve(TravelingThiefProblem problem) {
-        NonDominatedSet nds = new NonDominatedSet();
+    public Solution solve() {
+        List<Ant> ants = new ArrayList<Ant>(numAnts);
+        for (int i = 0; i < numAnts; i++) {
+            ants.set(i, new Ant(problem.numOfItems, problem.numOfCities));
+        }
+        initializePheromones();
 
-        initializePheromones(problem);
+
+        for (int i = 0; i < maxIterations; i++) {
+            for (int j = 0; j < problem.numOfCities; j++) {
+                for (Ant ant : ants) {
+                    antStep(ant);
+                }
+            }
+            // TODO: Global pheromone update
+        }
 
         return null;
     }
 
-    private void initializePheromones(TravelingThiefProblem problem) {
-        this.problem = problem;
+    private void antStep(Ant ant) {
+        // TODO: Pick item (probability should not add up to 1?)
+        // TODO: Update weight, and item decision vector z
+        ant.updateSpeed(problem.minSpeed, problem.maxSpeed, problem.maxWeight);
+
+        // Make a step
+        int currentCity = ant.currentCity;
+        int nextCity = weightedCityChoice(ant);
+        double distance = problem.euclideanDistance(currentCity, nextCity);
+        ant.step(nextCity, distance);
+
+        // Update pheromones
+        localCityPheromoneUpdate(currentCity, nextCity);
+        // TODO: Item pheromone update
+    }
+
+    private double tauZero() {
+        return (double) 1 / this.problem.numOfCities;
+    }
+
+    private void initializePheromones() {
         int numOfCities = problem.numOfCities;
         int numOfItems = problem.numOfItems;
 
         // Initialize uniform pheromones
-        globalCityPheromones = new double[numOfCities][numOfCities];
-        for (double[] row : globalCityPheromones) {
-            Arrays.fill(row, (double)(1/numOfCities));
-        }
-        for (int i = 0; i < numOfCities; i++) {
-            localCityPheromones.add(globalCityPheromones);
+        cityPheromones = new double[numOfCities][numOfCities];
+        for (double[] row : cityPheromones) {
+            Arrays.fill(row, tauZero());
         }
 
-        globalItemPheromones = new double[numOfItems];
-        Arrays.fill(globalItemPheromones, (double)(1/numOfItems));
-        for (int i = 0; i < numOfItems; i++) {
-            localItemPheromones.add(globalItemPheromones);
-        }
-
+        itemPheromones = new double[numOfItems];
+        Arrays.fill(itemPheromones, tauZero());
     }
 
-    private Solution runAnt(int antIndex) {
-        List<Integer> pi = new ArrayList<Integer>(1); // 0 is in there
-        List<Boolean> z = new ArrayList<>(problem.numOfItems);
-
-        int profit = 0;
-        double speed = this.problem.maxSpeed;
-        double time = 0;
-        int weight = 0;
-
-        boolean[] visitedCities = new boolean[this.problem.numOfCities];
-        int currentCity = 0;
-        for (int i = 0; i < this.problem.numOfCities - 1; i++) {
-            // TODO: Pick item (probability should not add up to 1?)
-            // TODO: Update weight, speed, z
-
-            visitedCities[currentCity] = true;
-            int nextCity = randomCity(localCityPheromones.get(antIndex)[currentCity], visitedCities);
-            double distance = this.problem.euclideanDistance(currentCity, nextCity);
-            time += distance / speed;
-            currentCity = nextCity;
-            pi.add(currentCity);
-        }
-
-        // TODO: Update local pheromones base on pi, z
-        return this.problem.evaluate(pi, z, true);
+    private void localCityPheromoneUpdate(int currentCity, int nextCity) {
+        cityPheromones[currentCity][nextCity] = (1 - phi) * cityPheromones[currentCity][nextCity] + phi * tauZero();
     }
 
-    private int randomCity (double[] pheromones, boolean[] visitedCities) {
+    private void globalCityPheromoneUpdate(List<Ant> ants) {
+        // TODO: identify best ant and update pheromones accordingly
+    }
+
+    private int weightedCityChoice(Ant ant) {
+        // TODO: use alpha and beta parameters for making this choice
+        double[] pheromones = cityPheromones[ant.currentCity];
         for (int i = 0; i < pheromones.length; i++) {
-            if (visitedCities[i]) {
+            if (ant.visitedCities.get(i)) {
                 pheromones[i] = 0;
             }
         }
