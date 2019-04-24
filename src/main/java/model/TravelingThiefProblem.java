@@ -47,7 +47,11 @@ public class TravelingThiefProblem {
     // ! the profit of each item
     public double[] profit;
 
-    //! used for faster evaluation
+    // ! used for fitness normalization
+    public double maxProfit = 0;
+    public double maxTour = 0;
+
+    // ! used for faster evaluation
     private List<LinkedList<Integer>> itemsAtCity = null;
 
 
@@ -71,6 +75,14 @@ public class TravelingThiefProblem {
             this.itemsAtCity.get(this.cityOfItem[i]).add(i);
         }
 
+        // Compute fitness normalization values
+        for (int i = 0; i < numOfItems; i++) {
+            maxProfit += profit[i];
+        }
+        for (int i = 0; i < numOfCities - 1; i++) {
+            maxTour += euclideanDistance(i, i + 1) / minSpeed;
+        }
+        maxTour += euclideanDistance(numOfCities - 1, 0) / minSpeed;
     }
 
 

@@ -20,11 +20,15 @@ public class AntColony {
     private double rho = 0.9;
     private double phi = 0.1;
 
-    // Model weights
+    // Fitness weight parameter
+    private double betaWeight = 1;
+
+    // Model weights (learned)
     private double[][] cityPheromones;
     private double[] itemPheromones;
 
-    public AntColony(TravelingThiefProblem problem, int maxIterations, int numAnts, double alpha, double beta, double rho, double phi) {
+    public AntColony(TravelingThiefProblem problem, int maxIterations, int numAnts, double alpha, double beta,
+                     double rho, double phi, double betaWeight) {
         this.problem = problem;
         this.maxIterations = maxIterations;
         this.numAnts = numAnts;
@@ -32,6 +36,7 @@ public class AntColony {
         this.beta = beta;
         this.rho = rho;
         this.phi = phi;
+        this.betaWeight = betaWeight;
     }
 
     public Solution solve() {
@@ -57,7 +62,7 @@ public class AntColony {
 
     private void antStep(Ant ant) {
         // TODO: Pick item (probability should not add up to 1?)
-        // TODO: Update weight, and item decision vector z
+        // TODO: Update weight, and item decision vector z of ant
         ant.updateSpeed(problem.minSpeed, problem.maxSpeed, problem.maxWeight);
 
         // Make a step
@@ -99,27 +104,41 @@ public class AntColony {
     }
 
     private void globalCityPheromoneUpdate(List<Ant> ants) {
-        // TODO: identify best ant (fitness?)
+        // Identify best ant
+        // TODO: update every iteration or only if best score is improved upon?
         Ant bestAnt = ants.get(0);
+        double bestFitness = -1;
+        for (Ant ant : ants) {
+            double fitness = antFitness(ant);
+            if (fitness > bestFitness) {
+                bestAnt = ant;
+                bestFitness = fitness;
+            }
+        }
+
+        // Update pheromones
         for (int i = 0; i < problem.numOfCities - 1; i++) {
             int from = bestAnt.pi.get(i);
             int to = bestAnt.pi.get(i + 1);
             cityPheromones[from][to] = (1 - rho) * cityPheromones[from][to] + rho * cityDeltaTau();
         }
-        // Add best value evaporation as with sudoku?
-        // There is no global evaporation of pheromone in ACS, might want to add, again just like sudoku?
+
+        // Ideas from sudoku paper to prevent stagnation:
+        // Add best value pheromone evaporation?
+        // There is no global evaporation of pheromone in ACS, might want to add?
     }
 
     private int weightedCityChoice(Ant ant) {
+        // Weigh choice probabilities based on pheromones and distance, and parameters alpha, beta
         double[] probabilities = new double[problem.numOfCities];
         for (int i = 0; i < problem.numOfCities; i++) {
             if (!ant.visitedCities.get(i)) {
-                // TODO: distance "changes" based on current weight?
                 double distance = problem.euclideanDistance(ant.currentCity, i);
                 probabilities[i] = Math.pow(cityPheromones[ant.currentCity][i], alpha) * Math.pow(1 / distance, beta);
             }
         }
 
+        // Choose
         double totalWeight = 0.0d;
         for (double prob : probabilities) {
             totalWeight += prob;
@@ -136,4 +155,15 @@ public class AntColony {
         return randomIndex;
     }
 
+    public double antFitness(Ant ant) {
+        // TODO: remove the following line when support for items is implemented, and uncomment the rest
+        return ant.time;
+
+//        double itemScore = ant.profit / problem.maxProfit;
+//        double tourScore = ant.time / problem.maxTour;
+//
+//        // Harmonic mean (although the scores are not normalized the same, this still might be a good measure)
+//        double fitness = (1 - betaWeight) * (itemScore * tourScore) / (Math.pow(betaWeight, 2) * itemScore + tourScore);
+//        return fitness;
+    }
 }
