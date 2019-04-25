@@ -13,10 +13,10 @@ public class AntColony {
     private TravelingThiefProblem problem;
 
     // Model parameters
-    private int maxIterations = 1000;
+    private int maxIterations = 100;
     private int numAnts = 10;
-    private double alpha = 0.5;
-    private double beta = 0.5;
+    private double alpha = 1;
+    private double beta = 1;
     private double rho = 0.9;
     private double phi = 0.1;
 
@@ -43,9 +43,9 @@ public class AntColony {
         initializePheromones();
         for (int i = 0; i < maxIterations; i++) {
             // New ants for each iteration, pheromones remain
-            List<Ant> ants = new ArrayList<Ant>(numAnts);
-            for (int j = 0; j < numAnts; i++) {
-                ants.set(j, new Ant(problem.numOfItems, problem.numOfCities));
+            List<Ant> ants = new ArrayList<Ant>();
+            for (int j = 0; j < numAnts; j++) {
+                ants.add(new Ant(problem.numOfItems, problem.numOfCities));
             }
 
             // Each ant completes tour
@@ -77,12 +77,12 @@ public class AntColony {
     }
 
     private double cityTauZero() {
-        return (double) 1 / this.problem.numOfCities;
+        return (double) 1 / this.problem.maxTour;
     }
 
-    private double cityDeltaTau() {
+    private double cityDeltaTau(double fitness) {
         // TODO: choose what to put here (something based on fitness)
-        return 1;
+        return 1 / fitness;
     }
 
     private void initializePheromones() {
@@ -107,20 +107,22 @@ public class AntColony {
         // Identify best ant
         // TODO: update every iteration or only if best score is improved upon?
         Ant bestAnt = ants.get(0);
-        double bestFitness = -1;
+        double bestFitness = Double.POSITIVE_INFINITY;
         for (Ant ant : ants) {
             double fitness = antFitness(ant);
-            if (fitness > bestFitness) {
+            if (fitness < bestFitness) {
                 bestAnt = ant;
                 bestFitness = fitness;
             }
         }
+        // TODO: Remove test print statement
+        System.out.println(bestFitness);
 
         // Update pheromones
         for (int i = 0; i < problem.numOfCities - 1; i++) {
             int from = bestAnt.pi.get(i);
             int to = bestAnt.pi.get(i + 1);
-            cityPheromones[from][to] = (1 - rho) * cityPheromones[from][to] + rho * cityDeltaTau();
+            cityPheromones[from][to] = (1 - rho) * cityPheromones[from][to] + rho * cityDeltaTau(bestFitness);
         }
 
         // Ideas from sudoku paper to prevent stagnation:
@@ -129,12 +131,20 @@ public class AntColony {
     }
 
     private int weightedCityChoice(Ant ant) {
+        // TODO: Pseudo-proportional selection rule?
+
         // Weigh choice probabilities based on pheromones and distance, and parameters alpha, beta
         double[] probabilities = new double[problem.numOfCities];
         for (int i = 0; i < problem.numOfCities; i++) {
-            if (!ant.visitedCities.get(i)) {
+            if (!ant.visitedCities[i]) {
                 double distance = problem.euclideanDistance(ant.currentCity, i);
+                if (distance <= 0) {
+                    distance = 0.000000000000001;
+                }
                 probabilities[i] = Math.pow(cityPheromones[ant.currentCity][i], alpha) * Math.pow(1 / distance, beta);
+            }
+            else {
+                probabilities[i] = 0;
             }
         }
 
@@ -160,7 +170,7 @@ public class AntColony {
         return ant.time;
 
 //        double itemScore = ant.profit / problem.maxProfit;
-//        double tourScore = ant.time / problem.maxTour;
+//        double tourScore = ant.time / problem.maxTour; // TODO: this rewards long routes, needs to be inverted
 //
 //        // Harmonic mean (although the scores are not normalized the same, this still might be a good measure)
 //        double fitness = (1 - betaWeight) * (itemScore * tourScore) / (Math.pow(betaWeight, 2) * itemScore + tourScore);

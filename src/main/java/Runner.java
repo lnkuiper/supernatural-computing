@@ -1,4 +1,5 @@
 import algorithms.Algorithm;
+import algorithms.AntColony;
 import algorithms.ExhaustiveSearch;
 import algorithms.RandomLocalSearch;
 import model.Solution;
@@ -29,11 +30,15 @@ class Runner {
 
             TravelingThiefProblem problem = Util.readProblem(is);
             problem.name = instance;
-//            System.out.println("Hello World");
-//            System.out.println(Arrays.deepToString(problem.coordinates));
+            System.out.println("Problem read.");
 
             // number of solutions that will be finally necessary for submission - not used here
             int numOfSolutions = Competition.numberOfSolutions(problem);
+
+            // TODO: remove this test code
+            AntColony AC = new AntColony(problem, 1000, 100, 1, 1, 0.9, 0.1, 1);
+            AC.solve();
+            System.exit(0);
 
             // initialize your algorithm
             Algorithm algorithm = new RandomLocalSearch(100);

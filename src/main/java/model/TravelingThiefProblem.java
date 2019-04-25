@@ -79,10 +79,29 @@ public class TravelingThiefProblem {
         for (int i = 0; i < numOfItems; i++) {
             maxProfit += profit[i];
         }
-        for (int i = 0; i < numOfCities - 1; i++) {
-            maxTour += euclideanDistance(i, i + 1) / minSpeed;
+
+        boolean[] visited = new boolean[numOfCities];
+        int currentCity = 0;
+        double averageSpeed = (maxSpeed - minSpeed) / 2 + minSpeed;
+        for (int i = 0; i < numOfCities-1; i++) {
+            visited[currentCity] = true;
+            double bestDist = Double.POSITIVE_INFINITY;
+            int bestCity = 0;
+            for (int j = 0; j < numOfCities; j++) {
+//                if(visited[j]) {
+//                    break;
+//                }
+                double dist = euclideanDistance(currentCity, j);
+                if(dist < bestDist && !visited[j]) {
+                    bestDist = dist;
+                    bestCity = j;
+                }
+            }
+            maxTour += bestDist / averageSpeed;
+            currentCity = bestCity;
         }
-        maxTour += euclideanDistance(numOfCities - 1, 0) / minSpeed;
+        maxTour += euclideanDistance(currentCity, 0) / averageSpeed;
+        System.out.println(maxTour);
     }
 
 
@@ -172,8 +191,12 @@ public class TravelingThiefProblem {
     }
 
     public double euclideanDistance(int a, int b) {
-        return Math.sqrt(Math.pow(this.coordinates[a][0] - this.coordinates[b][0], 2)
-                + Math.pow(this.coordinates[a][1] - this.coordinates[b][1], 2));
+        double distance = Math.sqrt(Math.pow(this.coordinates[a][0] - this.coordinates[b][0], 2)
+                        + Math.pow(this.coordinates[a][1] - this.coordinates[b][1], 2));
+        if (distance == 0) {
+            return 0.000001;
+        }
+        return distance;
     }
 
 

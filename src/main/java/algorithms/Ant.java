@@ -7,7 +7,7 @@ public class Ant {
 
     public List<Integer> pi = new ArrayList<Integer>();
     public List<Boolean> z;
-    public List<Boolean> visitedCities;
+    public boolean[] visitedCities;
     public int currentCity = 0;
     public int profit = 0;
     public double speed;
@@ -17,8 +17,8 @@ public class Ant {
     public Ant(int numOfItems, int numOfCities) {
         this.pi.add(0);
         this.z = new ArrayList<Boolean>(numOfItems);
-        this.visitedCities = new ArrayList<Boolean>(numOfCities);
-        this.visitedCities.set(0, true);
+        this.visitedCities = new boolean[numOfCities];
+        this.visitedCities[0] =  true;
     }
 
     public void updateSpeed(double minSpeed, double maxSpeed, int maxWeight) {
@@ -31,12 +31,10 @@ public class Ant {
     }
 
     public void step(int nextCity, double distance) {
-        // Keep track of visited cities
-        visitedCities.set(currentCity, true);
-
         // Move to next city and update values
         currentCity = nextCity;
         pi.add(currentCity);
+        visitedCities[currentCity] = true;
         time += distance / speed;
     }
 
