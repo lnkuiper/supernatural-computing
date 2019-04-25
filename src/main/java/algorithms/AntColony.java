@@ -41,20 +41,35 @@ public class AntColony {
 
     public Solution solve() {
         initializePheromones();
+        double bestFitness = Double.POSITIVE_INFINITY;
+        Ant bestAnt = new Ant(problem.numOfItems, problem.numOfCities);
         for (int i = 0; i < maxIterations; i++) {
+            double iterationBest = Double.POSITIVE_INFINITY;
             // New ants for each iteration, pheromones remain
-            List<Ant> ants = new ArrayList<Ant>();
+            List<Ant> ants = new ArrayList<>();
             for (int j = 0; j < numAnts; j++) {
                 ants.add(new Ant(problem.numOfItems, problem.numOfCities));
             }
-
             // Each ant completes tour
             for (int j = 0; j < problem.numOfCities; j++) {
                 for (Ant ant : ants) {
                     antStep(ant);
                 }
             }
-            globalCityPheromoneUpdate(ants);
+
+            for (Ant ant : ants) {
+                double fitness = antFitness(ant);
+                if (fitness < iterationBest) {
+                    iterationBest = fitness;
+                    bestAnt = ant;
+                }
+            }
+
+            if (iterationBest < bestFitness) {
+                bestFitness = iterationBest;
+                System.out.println(bestFitness);
+                globalCityPheromoneUpdate(bestAnt);
+            }
         }
 
         return null;
@@ -77,7 +92,7 @@ public class AntColony {
     }
 
     private double cityTauZero() {
-        return (double) 1 / this.problem.maxTour;
+        return (double) 1 / problem.maxTour;
     }
 
     private double cityDeltaTau(double fitness) {
@@ -103,27 +118,19 @@ public class AntColony {
         cityPheromones[currentCity][nextCity] = (1 - phi) * cityPheromones[currentCity][nextCity] + phi * cityTauZero();
     }
 
-    private void globalCityPheromoneUpdate(List<Ant> ants) {
-        // Identify best ant
-        // TODO: update every iteration or only if best score is improved upon?
-        Ant bestAnt = ants.get(0);
-        double bestFitness = Double.POSITIVE_INFINITY;
-        for (Ant ant : ants) {
-            double fitness = antFitness(ant);
-            if (fitness < bestFitness) {
-                bestAnt = ant;
-                bestFitness = fitness;
-            }
-        }
-        // TODO: Remove test print statement
-        System.out.println(bestFitness);
-
+    private void globalCityPheromoneUpdate(Ant bestAnt) {
         // Update pheromones
         for (int i = 0; i < problem.numOfCities - 1; i++) {
             int from = bestAnt.pi.get(i);
             int to = bestAnt.pi.get(i + 1);
-            cityPheromones[from][to] = (1 - rho) * cityPheromones[from][to] + rho * cityDeltaTau(bestFitness);
+            double fitness = antFitness(bestAnt);
+            double deltaTau = cityDeltaTau(fitness);
+            cityPheromones[from][to] = (1 - rho) * cityPheromones[from][to] + rho * deltaTau;
         }
+
+//        System.out.println(bestFitness);
+//        System.out.println(bestAnt.pi.toString());
+//        System.out.println(Arrays.toString(cityPheromones[0]));
 
         // Ideas from sudoku paper to prevent stagnation:
         // Add best value pheromone evaporation?
@@ -138,9 +145,6 @@ public class AntColony {
         for (int i = 0; i < problem.numOfCities; i++) {
             if (!ant.visitedCities[i]) {
                 double distance = problem.euclideanDistance(ant.currentCity, i);
-                if (distance <= 0) {
-                    distance = 0.000000000000001;
-                }
                 probabilities[i] = Math.pow(cityPheromones[ant.currentCity][i], alpha) * Math.pow(1 / distance, beta);
             }
             else {

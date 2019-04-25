@@ -36,7 +36,7 @@ class Runner {
             int numOfSolutions = Competition.numberOfSolutions(problem);
 
             // TODO: remove this test code
-            AntColony AC = new AntColony(problem, 1000, 100, 5, 10, 0.9, 0.1, 1);
+            AntColony AC = new AntColony(problem, 1000, (int) (0.3 * problem.numOfCities), 15, 20, 0.5, 0.05, 1);
             AC.solve();
             System.exit(0);
 
