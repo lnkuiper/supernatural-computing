@@ -39,7 +39,7 @@ public class TSPAnt implements Comparable<TSPAnt>{
 
     @Override
     public int compareTo(TSPAnt otherAnt) {
-        return Double.compare(this.time, otherAnt.time);
+        return -Double.compare(this.time, otherAnt.time);
     }
 
     @Override

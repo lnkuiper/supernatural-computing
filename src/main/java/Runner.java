@@ -35,12 +35,12 @@ class Runner {
             int numOfSolutions = Competition.numberOfSolutions(problem);
 
             // TODO: remove this test code
-            double antFrac = 0.5;
+            double antFrac = 0.7;
             int numAnts = (int) (antFrac * problem.numOfCities);
             TSPAntColony AC = new TSPAntColony(problem,
-                    10, 1000, numAnts,
+                    20, 1000, numAnts,
                     15, 20, 0.1,
-                    0.9, 0.0005, false);
+                    0.15, 0.001, false);
             List<List<Integer>> bestTours = AC.computeTours();
             System.exit(0);
 
