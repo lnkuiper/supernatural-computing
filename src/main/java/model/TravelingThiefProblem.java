@@ -88,9 +88,6 @@ public class TravelingThiefProblem {
             double bestDist = Double.POSITIVE_INFINITY;
             int bestCity = 0;
             for (int j = 0; j < numOfCities; j++) {
-//                if(visited[j]) {
-//                    break;
-//                }
                 double dist = euclideanDistance(currentCity, j);
                 if(dist < bestDist && !visited[j]) {
                     bestDist = dist;
@@ -197,6 +194,10 @@ public class TravelingThiefProblem {
             return 0.000001;
         }
         return distance;
+    }
+
+    public List<Integer> getItemsAtCity(int c) {
+        return itemsAtCity.get(c);
     }
 
 

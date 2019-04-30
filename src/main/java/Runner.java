@@ -1,6 +1,5 @@
 import algorithms.Algorithm;
-import algorithms.AntColony;
-import algorithms.ExhaustiveSearch;
+import algorithms.TSPAntColony;
 import algorithms.RandomLocalSearch;
 import model.Solution;
 import model.TravelingThiefProblem;
@@ -36,15 +35,20 @@ class Runner {
             int numOfSolutions = Competition.numberOfSolutions(problem);
 
             // TODO: remove this test code
-            AntColony AC = new AntColony(problem, 1000, (int) (0.3 * problem.numOfCities), 15, 20, 0.5, 0.05, 1);
-            AC.solve();
+            double antFrac = 0.5;
+            int numAnts = (int) (antFrac * problem.numOfCities);
+            TSPAntColony AC = new TSPAntColony(problem,
+                    10, 1000, numAnts,
+                    15, 20, 0.1,
+                    0.9, 0.0005, false);
+            List<List<Integer>> bestTours = AC.computeTours();
             System.exit(0);
 
             // initialize your algorithm
             Algorithm algorithm = new RandomLocalSearch(100);
             //Algorithm algorithm = new ExhaustiveSearch();
 
-            // use it to to solve the problem and return the non-dominated set
+            // use it to to computeTours the problem and return the non-dominated set
             List<Solution> nds = algorithm.solve(problem);
 
             // sort by time and printSolutions it
