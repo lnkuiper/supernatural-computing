@@ -9,7 +9,7 @@ public class TSPAnt implements Comparable<TSPAnt>{
     public List<Integer> pi;
     public boolean[] visitedCities;
     public int currentCity;
-    public double time = 0;
+    public double travelTime = 0;
 
     public TSPAnt(int numOfCities) {
         this.pi = new ArrayList<>(numOfCities);
@@ -24,7 +24,7 @@ public class TSPAnt implements Comparable<TSPAnt>{
         currentCity = nextCity;
         pi.add(currentCity);
         visitedCities[currentCity] = true;
-        time += distance;
+        travelTime += distance;
     }
 
     public List<Integer> getTour() {
@@ -39,7 +39,7 @@ public class TSPAnt implements Comparable<TSPAnt>{
 
     @Override
     public int compareTo(TSPAnt otherAnt) {
-        return -Double.compare(this.time, otherAnt.time);
+        return -Double.compare(this.travelTime, otherAnt.travelTime);
     }
 
     @Override

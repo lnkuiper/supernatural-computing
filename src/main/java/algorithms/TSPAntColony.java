@@ -5,15 +5,17 @@ import util.FixedSizePriorityQueue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
 
-public class TSPAntColony {
+public class TSPAntColony  implements Callable<List<TSPAnt>> {
 
     private TravelingThiefProblem problem;
 
     // Model parameters
+    private int threadNum;
     private int iterations;
-    private int restarts;
     private int numAnts;
 
     // Choice parameters
@@ -30,13 +32,13 @@ public class TSPAntColony {
     private double[][] pheromones;
 
     public TSPAntColony(TravelingThiefProblem problem,
-                        int restarts, int iterations, int numAnts,
+                        int threadNum, int iterations, int numAnts,
                         double alpha, double beta, double qZero,
                         double rho, double phi, boolean bestAtIteration) {
         this.problem = problem;
 
+        this.threadNum = threadNum;
         this.iterations = iterations;
-        this.restarts = restarts;
         this.numAnts = numAnts;
 
         this.alpha = alpha;
@@ -48,88 +50,85 @@ public class TSPAntColony {
         this.bestAtIteration = bestAtIteration;
     }
 
-    public List<List<Integer>> computeTours() {
-        // TODO: change arbitrary maxSize (variable?)
-        int maxSize = 10;
-        FixedSizePriorityQueue<TSPAnt> minHeap = new FixedSizePriorityQueue<>(maxSize);
+    @Override
+    public List<TSPAnt> call() {
+        int heapSize = 10;
+        FixedSizePriorityQueue<TSPAnt> minHeap = new FixedSizePriorityQueue<>(heapSize);
+        double bestFitness = Double.POSITIVE_INFINITY;
+        TSPAnt bestAnt = new TSPAnt(problem.numOfCities);
+        initializePheromones();
+        for (int i = 0; i < iterations; i++) {
+            double iterationBestFitness = Double.POSITIVE_INFINITY;
+            TSPAnt iterationBestAnt = new TSPAnt(problem.numOfCities);
 
-        for (int i = 0; i < restarts; i++) {
-            double bestFitness = Double.POSITIVE_INFINITY;
-            TSPAnt bestAnt = new TSPAnt(problem.numOfCities);
-            initializePheromones();
-            for (int j = 0; j < iterations; j++) {
-                double iterationBestFitness = Double.POSITIVE_INFINITY;
-                TSPAnt iterationBestAnt = new TSPAnt(problem.numOfCities);
+            // New ants for each iteration
+            List<TSPAnt> ants = new ArrayList<>(numAnts);
+            for (int j = 0; j < numAnts; j++) {
+                ants.add(new TSPAnt(problem.numOfCities));
+            }
 
-                // New ants for each iteration
-                List<TSPAnt> ants = new ArrayList<>(numAnts);
-                for (int k = 0; k < numAnts; k++) {
-                    ants.add(new TSPAnt(problem.numOfCities));
-                }
-
-                // Each ant walks simultaneously, visits each city
-                for (int k = 0; k < problem.numOfCities - 1; k++) {
-                    for (TSPAnt ant : ants) {
-                        int currentCity = ant.currentCity;
-                        int nextCity = weightedChoice(ant);
-                        double distance = problem.euclideanDistance(currentCity, nextCity);
-                        ant.step(nextCity, distance);
-                        localPheromoneUpdate(currentCity, nextCity);
-                    }
-                }
-                // Return to initial city
+            // Each ant walks simultaneously, visits each city
+            for (int j = 0; j < problem.numOfCities - 1; j++) {
                 for (TSPAnt ant : ants) {
                     int currentCity = ant.currentCity;
-                    int nextCity = ant.pi.get(0);
+                    int nextCity = weightedChoice(ant);
                     double distance = problem.euclideanDistance(currentCity, nextCity);
-                    ant.time += distance;
+                    ant.step(nextCity, distance);
                     localPheromoneUpdate(currentCity, nextCity);
                 }
+            }
+            // Return to initial city
+            for (TSPAnt ant : ants) {
+                int currentCity = ant.currentCity;
+                int nextCity = ant.pi.get(0);
+                double distance = problem.euclideanDistance(currentCity, nextCity);
+                ant.travelTime += distance;
+                localPheromoneUpdate(currentCity, nextCity);
+            }
 
-                // TODO: add hill-climb somewhere here?
+            // Identify best of iteration
+            for (TSPAnt ant : ants) {
+                if (ant.travelTime < iterationBestFitness) {
+                    iterationBestFitness = ant.travelTime;
+                    iterationBestAnt = ant;
+                }
+            }
 
-                // Identify best of iteration
-                for (TSPAnt ant : ants) {
-                    if (ant.time < iterationBestFitness) {
-                        iterationBestFitness = ant.time;
-                        iterationBestAnt = ant;
-                    }
-                }
+            // Find local optimum
+            iterationBestAnt = localSearch(iterationBestAnt);
+            iterationBestFitness = iterationBestAnt.travelTime;
 
-                // Identify best so far
-                if (iterationBestFitness < bestFitness) {
-                    bestFitness = iterationBestFitness;
-                    bestAnt = iterationBestAnt;
-                }
+            // Identify best so far
+            if (iterationBestFitness < bestFitness) {
+                bestFitness = iterationBestFitness;
+                bestAnt = iterationBestAnt;
+            }
 
-                // Update pheromones
-                if (bestAtIteration) {
-                    globalPheromoneUpdate(iterationBestAnt);
-                }
-                else {
-                    globalPheromoneUpdate(bestAnt);
-                }
+            // Update pheromones
+            if (bestAtIteration) {
+                globalPheromoneUpdate(iterationBestAnt);
+            }
+            else {
+                globalPheromoneUpdate(bestAnt);
+            }
 
-                // Add good solutions to min heap
-                if (!minHeap.contains(iterationBestAnt)) {
-                    minHeap.add(iterationBestAnt);
-                }
-                System.out.println(String.format("R%d, I%d: \toverall = %f, iter = %f", i, j, bestFitness, iterationBestFitness));
+            // Add good solutions to min heap
+            if (!minHeap.contains(iterationBestAnt)) {
+                minHeap.add(iterationBestAnt);
+            }
+            if (i % 10 == 0) {
+                System.out.println(String.format("T%d, I%d: \toverall = %f, iter = %f", threadNum, i, bestFitness, iterationBestFitness));
             }
         }
-        System.out.println();
 
         // Add best tours to list
-        List<List<Integer>> bestTours = new ArrayList<>(maxSize);
+        List<TSPAnt> bestAnts = new ArrayList<>(heapSize);
         TSPAnt nextAnt = minHeap.pollFirst();
         while (nextAnt != null) {
-            System.out.println(nextAnt.time);
-            System.out.println(nextAnt.getTour().toString());
-            System.out.println();
-            bestTours.add(nextAnt.getTour());
+            bestAnts.add(nextAnt);
             nextAnt = minHeap.pollFirst();
         }
-        return bestTours;
+        return bestAnts;
     }
 
     private double tauZero() {
@@ -142,36 +141,12 @@ public class TSPAntColony {
 
     private void initializePheromones() {
         int numOfCities = problem.numOfCities;
-        int numOfItems = problem.numOfItems;
 
         // Initialize uniform pheromones
         pheromones = new double[numOfCities][numOfCities];
         for (double[] row : pheromones) {
             Arrays.fill(row, tauZero());
         }
-    }
-
-    private void localPheromoneUpdate(int currentCity, int nextCity) {
-        // TODO: bi-directional y/n?
-        pheromones[currentCity][nextCity] = (1 - phi) * pheromones[currentCity][nextCity] + phi * tauZero();
-        pheromones[nextCity][currentCity] = (1 - phi) * pheromones[nextCity][currentCity] + phi * tauZero();
-    }
-
-    private void globalPheromoneUpdate(TSPAnt ant) {
-        for (int i = 0; i < problem.numOfCities - 1; i++) {
-            int from = ant.pi.get(i);
-            int to = ant.pi.get(i + 1);
-            double deltaTau = deltaTau(ant.time);
-
-            // TODO: bi-directional y/n?
-            pheromones[from][to] = (1 - rho) * pheromones[from][to] + rho * deltaTau;
-            pheromones[to][from] = (1 - rho) * pheromones[to][from] + rho * deltaTau;
-        }
-
-        // TODO: think about these ideas
-        // Ideas from sudoku paper to prevent stagnation:
-        // Add best value pheromone evaporation?
-        // There is no global evaporation of pheromone in ACS, might want to add?
     }
 
     private int weightedChoice(TSPAnt ant) {
@@ -220,5 +195,63 @@ public class TSPAntColony {
             }
         }
         return randomIndex;
+    }
+
+    private TSPAnt localSearch(TSPAnt ant) {
+        // 2-OPT
+        List<Integer> bestTour = ant.pi;
+        double bestLength = ant.travelTime;
+        boolean improved = true;
+        while (improved) {
+            improved = false;
+            for (int i = 1; i < problem.numOfCities - 2; i++) {
+                for (int j = i + 1; j < problem.numOfCities; j++) {
+                    List<Integer> reversePart = bestTour.subList(i - 1, j - 1);
+                    Collections.reverse(reversePart);
+                    double length = tourLength(bestTour);
+                    if (length < bestLength) {
+                        improved = true;
+                        bestLength = length;
+                    } else {
+                        Collections.reverse(reversePart);
+                    }
+                }
+            }
+        }
+        ant.pi = bestTour;
+        ant.travelTime = bestLength;
+        return ant;
+    }
+
+    private double tourLength(List<Integer> pi) {
+        double length = 0;
+        for (int i = 0; i < problem.numOfCities - 1; i++) {
+            length += problem.euclideanDistance(pi.get(i), pi.get(i + 1));
+        }
+        length += problem.euclideanDistance(pi.get(problem.numOfCities - 1), pi.get(0));
+        return length;
+    }
+
+    private void localPheromoneUpdate(int currentCity, int nextCity) {
+        // Bi-directional
+        pheromones[currentCity][nextCity] = (1 - phi) * pheromones[currentCity][nextCity] + phi * tauZero();
+        pheromones[nextCity][currentCity] = (1 - phi) * pheromones[nextCity][currentCity] + phi * tauZero();
+    }
+
+    private void globalPheromoneUpdate(TSPAnt ant) {
+        for (int i = 0; i < problem.numOfCities - 1; i++) {
+            int from = ant.pi.get(i);
+            int to = ant.pi.get(i + 1);
+            double deltaTau = deltaTau(ant.travelTime);
+
+            // Bi-directional
+            pheromones[from][to] = (1 - rho) * pheromones[from][to] + rho * deltaTau;
+            pheromones[to][from] = (1 - rho) * pheromones[to][from] + rho * deltaTau;
+        }
+
+        // TODO: think about these ideas
+        // Ideas from sudoku paper to prevent stagnation:
+        // Add best value pheromone evaporation?
+        // There is no global evaporation of pheromone in ACS, might want to add?
     }
 }

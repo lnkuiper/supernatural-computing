@@ -37,7 +37,7 @@ In the following the project structure is explained:
         └── Solution.java: NonDominatedSet.java: Example implementation of a non-dominated set. Can be done faster/better.
     ├── algorithms
         ├── Algorithm: Interface for the algorithm to be implemented from.
-        ├── ExhaustiveSearch: Solves the problem exhaustively which means iterating over all possible tours and packing plans.
+        ├── ExhaustiveSearch: Solves the problem exhaustively which means iterating over all possible threadNum and packing plans.
         └── RandomLocalSearch: Example algorithm to randomly fix a tour and then iterate over possible packing plans.
 
 

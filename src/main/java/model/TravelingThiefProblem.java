@@ -75,11 +75,7 @@ public class TravelingThiefProblem {
             this.itemsAtCity.get(this.cityOfItem[i]).add(i);
         }
 
-        // Compute fitness normalization values
-        for (int i = 0; i < numOfItems; i++) {
-            maxProfit += profit[i];
-        }
-
+        // Compute values for pheromone initialization
         boolean[] visited = new boolean[numOfCities];
         int currentCity = 0;
         double averageSpeed = (maxSpeed - minSpeed) / 2 + minSpeed;
@@ -98,7 +94,6 @@ public class TravelingThiefProblem {
             currentCity = bestCity;
         }
         maxTour += euclideanDistance(currentCity, 0) / averageSpeed;
-        System.out.println(maxTour);
     }
 
 
@@ -161,7 +156,7 @@ public class TravelingThiefProblem {
             // update the speed accordingly
             double speed = this.maxSpeed - (weight / this.maxWeight) * (this.maxSpeed - this.minSpeed);
 
-            // increase time by considering the speed - do not forget the way from the last city to the first!
+            // increase travelTime by considering the speed - do not forget the way from the last city to the first!
             int next = pi.get((i + 1) % this.numOfCities);
             double distance = Math.ceil(euclideanDistance(city, next));
 
@@ -208,7 +203,7 @@ public class TravelingThiefProblem {
     public void verify(Solution s) throws RuntimeException {
         Solution correct = this.evaluate(s.pi, s.z);
         if (s.time != correct.time || s.profit != correct.profit) {
-            throw new RuntimeException("Pi and Z are not matching with the objectives values time and profit.");
+            throw new RuntimeException("Pi and Z are not matching with the objectives values travelTime and profit.");
         }
 
     }

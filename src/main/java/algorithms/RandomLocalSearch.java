@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * This algorithm is a naive random search, where on random tours items are added in random order.
- * Every time an item is added, it is evaluated and the non-dominated set is updated.
+ * Every travelTime an item is added, it is evaluated and the non-dominated set is updated.
  *
  * If the attribute pi is set the tour is kept fixed and only the order if adding items to it are
  * modified.

@@ -166,7 +166,7 @@ The goal is to minimize the total traveling time of the tour:
         f(\pi) & = & \sum_{i=1}^{n-1} \frac{ d_{\pi_i, \pi_{i+1}}}{v} \; +  \; \frac{ d_{\pi_n, \pi_{1}}}{v}\nonumber
     \end{eqnarray}
 
-There are :math:`\frac{(n-1)!}{2}` different tours to consider,
+There are :math:`\frac{(n-1)!}{2}` different threadNum to consider,
 if we assume that the salesman has to start from the first city
 and travels on a symmetric map where :math:`d_{i,j} = d_{j,i}`.
 
@@ -323,7 +323,7 @@ Below you can find all pareto-optimal solutions of this example. The Pareto fron
     :width: 300px
 
 Additionally, the figure below shows the objective space colored by tour. As it can be observed pareto-optimal solutions
-can have different underlying tours. Please also not that the point where no items are picked consists of two different solutions
+can have different underlying threadNum. Please also not that the point where no items are picked consists of two different solutions
 with a symmetric tour. Also, the Pareto front is non-convex.
 
 
