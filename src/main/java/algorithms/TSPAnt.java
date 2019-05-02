@@ -9,7 +9,7 @@ public class TSPAnt implements Comparable<TSPAnt>{
     public List<Integer> pi;
     public boolean[] visitedCities;
     public int currentCity;
-    public double travelTime = 0;
+    public float travelTime = 0;
 
     public TSPAnt(int numOfCities) {
         this.pi = new ArrayList<>(numOfCities);
@@ -19,7 +19,7 @@ public class TSPAnt implements Comparable<TSPAnt>{
         this.visitedCities[currentCity] = true;
     }
 
-    public void step(int nextCity, double distance) {
+    public void step(int nextCity, float distance) {
         // Move to next city and update values
         currentCity = nextCity;
         pi.add(currentCity);

@@ -9,20 +9,24 @@ import java.util.concurrent.*;
 
 public class TSPRunner {
 
-    public List<List<Integer>> computeTours(TravelingThiefProblem problem) throws ExecutionException, InterruptedException {
+    // TODO: cross-contaminate pheromones between colonies
+    public List<List<Integer>> computeTours(TravelingThiefProblem problem)
+            throws ExecutionException, InterruptedException {
 
         // Create as many TSPAntColonies as there are processors, and add them all to a pool
-        int cores = Runtime.getRuntime().availableProcessors();
+        int cores = 1; //Runtime.getRuntime().availableProcessors();
         ExecutorService pool = Executors.newFixedThreadPool(cores);
         List<Future<List<TSPAnt>>> futures = new ArrayList<>();
         for (int threadNum = 0; threadNum < cores; threadNum++) {
-            double antFrac = 0.7;
+            float antFrac = (float) 0.1;
             int numAnts = (int) (antFrac * problem.numOfCities);
-            double phi = (double) (1 / (7*numAnts));
+            float phi = (float) (1 / (7*numAnts));
+            float qZero = (float) 0.1;
+            float rho = (float) 0.15;
             Callable<List<TSPAnt>> AC = new TSPAntColony(problem,
-                    threadNum, 501, numAnts,
-                    15, 20, 0.1,
-                    0.15, phi, false);
+                    threadNum, 100, numAnts,
+                    15, 20, qZero,
+                    rho, phi, false);
             Future<List<TSPAnt>> future = pool.submit(AC);
             futures.add(future);
         }

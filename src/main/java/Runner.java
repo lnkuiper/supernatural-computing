@@ -21,7 +21,8 @@ class Runner {
 
     public static void main(String[] args) throws ExecutionException, InterruptedException, IOException {
 
-        List<String> instanceToRun = Arrays.asList("a280-n279");
+//        List<String> instanceToRun = Arrays.asList("a280-n279");
+        List<String> instanceToRun = Arrays.asList("pla33810-n33809");
         //List<String> instanceToRun = Competition.INSTANCES;
 
         for (String instance : instanceToRun) {

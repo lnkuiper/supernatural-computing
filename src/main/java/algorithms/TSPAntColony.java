@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-public class TSPAntColony  implements Callable<List<TSPAnt>> {
+public class TSPAntColony implements Callable<List<TSPAnt>> {
 
     private TravelingThiefProblem problem;
 
@@ -19,22 +19,22 @@ public class TSPAntColony  implements Callable<List<TSPAnt>> {
     private int numAnts;
 
     // Choice parameters
-    private double alpha;
-    private double beta;
-    private double qZero;
+    private float alpha;
+    private float beta;
+    private float qZero;
 
     // Pheromone update parameters
-    private double rho;
-    private double phi;
+    private float rho;
+    private float phi;
     private boolean bestAtIteration;
 
     // Model weights (learned)
-    private double[][] pheromones;
+    private float[][] pheromones;
 
     public TSPAntColony(TravelingThiefProblem problem,
                         int threadNum, int iterations, int numAnts,
-                        double alpha, double beta, double qZero,
-                        double rho, double phi, boolean bestAtIteration) {
+                        float alpha, float beta, float qZero,
+                        float rho, float phi, boolean bestAtIteration) {
         this.problem = problem;
 
         this.threadNum = threadNum;
@@ -48,6 +48,8 @@ public class TSPAntColony  implements Callable<List<TSPAnt>> {
         this.rho = rho;
         this.phi = phi;
         this.bestAtIteration = bestAtIteration;
+
+        initializePheromones();
     }
 
     @Override
@@ -56,7 +58,6 @@ public class TSPAntColony  implements Callable<List<TSPAnt>> {
         FixedSizePriorityQueue<TSPAnt> minHeap = new FixedSizePriorityQueue<>(heapSize);
         double bestFitness = Double.POSITIVE_INFINITY;
         TSPAnt bestAnt = new TSPAnt(problem.numOfCities);
-        initializePheromones();
         for (int i = 0; i < iterations; i++) {
             double iterationBestFitness = Double.POSITIVE_INFINITY;
             TSPAnt iterationBestAnt = new TSPAnt(problem.numOfCities);
@@ -72,7 +73,7 @@ public class TSPAntColony  implements Callable<List<TSPAnt>> {
                 for (TSPAnt ant : ants) {
                     int currentCity = ant.currentCity;
                     int nextCity = weightedChoice(ant);
-                    double distance = problem.euclideanDistance(currentCity, nextCity);
+                    float distance = problem.euclideanDistance(currentCity, nextCity);
                     ant.step(nextCity, distance);
                     localPheromoneUpdate(currentCity, nextCity);
                 }
@@ -81,7 +82,7 @@ public class TSPAntColony  implements Callable<List<TSPAnt>> {
             for (TSPAnt ant : ants) {
                 int currentCity = ant.currentCity;
                 int nextCity = ant.pi.get(0);
-                double distance = problem.euclideanDistance(currentCity, nextCity);
+                float distance = problem.euclideanDistance(currentCity, nextCity);
                 ant.travelTime += distance;
                 localPheromoneUpdate(currentCity, nextCity);
             }
@@ -131,11 +132,11 @@ public class TSPAntColony  implements Callable<List<TSPAnt>> {
         return bestAnts;
     }
 
-    private double tauZero() {
-        return (double) 1 / problem.maxTour;
+    private float tauZero() {
+        return (float) 1 / problem.maxTour;
     }
 
-    private double deltaTau(double fitness) {
+    private float deltaTau(float fitness) {
         return 1 / fitness;
     }
 
@@ -143,8 +144,8 @@ public class TSPAntColony  implements Callable<List<TSPAnt>> {
         int numOfCities = problem.numOfCities;
 
         // Initialize uniform pheromones
-        pheromones = new double[numOfCities][numOfCities];
-        for (double[] row : pheromones) {
+        pheromones = new float[numOfCities][numOfCities];
+        for (float[] row : pheromones) {
             Arrays.fill(row, tauZero());
         }
     }
@@ -200,7 +201,8 @@ public class TSPAntColony  implements Callable<List<TSPAnt>> {
     private TSPAnt localSearch(TSPAnt ant) {
         // 2-OPT
         List<Integer> bestTour = ant.pi;
-        double bestLength = ant.travelTime;
+        float bestLength = ant.travelTime;
+        System.out.println(String.format("Before 2OPT:", bestLength));
         boolean improved = true;
         while (improved) {
             improved = false;
@@ -208,7 +210,7 @@ public class TSPAntColony  implements Callable<List<TSPAnt>> {
                 for (int j = i + 1; j < problem.numOfCities; j++) {
                     List<Integer> reversePart = bestTour.subList(i - 1, j - 1);
                     Collections.reverse(reversePart);
-                    double length = tourLength(bestTour);
+                    float length = tourLength(bestTour);
                     if (length < bestLength) {
                         improved = true;
                         bestLength = length;
@@ -217,14 +219,16 @@ public class TSPAntColony  implements Callable<List<TSPAnt>> {
                     }
                 }
             }
+            System.out.println("Iteration");
         }
         ant.pi = bestTour;
         ant.travelTime = bestLength;
+        System.out.println(String.format("After 2OPT:", bestLength));
         return ant;
     }
 
-    private double tourLength(List<Integer> pi) {
-        double length = 0;
+    private float tourLength(List<Integer> pi) {
+        float length = 0;
         for (int i = 0; i < problem.numOfCities - 1; i++) {
             length += problem.euclideanDistance(pi.get(i), pi.get(i + 1));
         }
@@ -239,15 +243,20 @@ public class TSPAntColony  implements Callable<List<TSPAnt>> {
     }
 
     private void globalPheromoneUpdate(TSPAnt ant) {
+        float deltaTau = deltaTau(ant.travelTime);
         for (int i = 0; i < problem.numOfCities - 1; i++) {
             int from = ant.pi.get(i);
             int to = ant.pi.get(i + 1);
-            double deltaTau = deltaTau(ant.travelTime);
 
             // Bi-directional
             pheromones[from][to] = (1 - rho) * pheromones[from][to] + rho * deltaTau;
             pheromones[to][from] = (1 - rho) * pheromones[to][from] + rho * deltaTau;
         }
+        int from = ant.pi.get(problem.numOfCities - 1);
+        int to = ant.pi.get(0);
+
+        pheromones[from][to] = (1 - rho) * pheromones[from][to] + rho * deltaTau;
+        pheromones[to][from] = (1 - rho) * pheromones[to][from] + rho * deltaTau;
 
         // TODO: think about these ideas
         // Ideas from sudoku paper to prevent stagnation:

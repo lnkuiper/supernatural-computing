@@ -49,7 +49,7 @@ public class TravelingThiefProblem {
 
     // ! used for fitness normalization
     public double maxProfit = 0;
-    public double maxTour = 0;
+    public float maxTour = 0;
 
     // ! used for faster evaluation
     private List<LinkedList<Integer>> itemsAtCity = null;
@@ -182,11 +182,11 @@ public class TravelingThiefProblem {
 
     }
 
-    public double euclideanDistance(int a, int b) {
-        double distance = Math.sqrt(Math.pow(this.coordinates[a][0] - this.coordinates[b][0], 2)
+    public float euclideanDistance(int a, int b) {
+        float distance = (float) Math.sqrt(Math.pow(this.coordinates[a][0] - this.coordinates[b][0], 2)
                         + Math.pow(this.coordinates[a][1] - this.coordinates[b][1], 2));
         if (distance == 0) {
-            return 0.000001;
+            return (float) 0.000001;
         }
         return distance;
     }
