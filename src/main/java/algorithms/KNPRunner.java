@@ -20,7 +20,7 @@ public class KNPRunner {
         List<Future<KNPAnt>> futures = new ArrayList<>();
         for (int threadNum = 0; threadNum < cores; threadNum++) {
             float antFrac = (float) 0.01;
-            int numAnts = 20;//(int) (antFrac * problem.numOfItems);
+            int numAnts = 1;//(int) (antFrac * problem.numOfItems);
             float phi = (float) (1 / (5*numAnts));
             float qZero = (float) 0.1;
             float rho = (float) 0.15;

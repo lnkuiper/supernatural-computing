@@ -50,6 +50,11 @@ public class KNPAntColony implements Callable<KNPAnt> {
 
         pheromones = new double[problem.numOfItems];
         Arrays.fill(pheromones, tauZero());
+        for (int i = 0; i < problem.numOfItems; i++) {
+            if (problem.greedyZ[i]) {
+                pheromones[i] *= 3;
+            }
+        }
     }
 
     @Override
@@ -84,7 +89,6 @@ public class KNPAntColony implements Callable<KNPAnt> {
                         }
                     }
                     k++;
-
                 }
             }
 
@@ -120,7 +124,7 @@ public class KNPAntColony implements Callable<KNPAnt> {
     }
 
     private double tauZero() {
-        return problem.greedyPackingPlan / 2;
+        return problem.greedyPackingPlan / 4;
     }
 
     private double deltaTau(double profit) {
@@ -176,25 +180,35 @@ public class KNPAntColony implements Callable<KNPAnt> {
     }
 
     private KNPAnt localSearch(KNPAnt ant) {
+        // Bit flip
         boolean improved = true;
         while (improved) {
             double oldProfit = ant.profit;
             improved = false;
             for (int i = 0; i < problem.numOfItems; i++) {
                 if (ant.z[i]) {
+                    // Identify best swap (if legal)
+                    int bestItem = -1;
+                    double bestProfit = 0;
                     for (int j = 0; j < problem.numOfItems; j++) {
                         if (!ant.z[j]) {
                             // TODO: select best item instead of first item
                             if (problem.weight[i] + problem.maxWeight - ant.weight >= problem.weight[j] && problem.profit[i] <= problem.profit[j]) {
-                                ant.z[i] = false;
-                                ant.z[j] = true;
-                                double weightChange = problem.weight[i] - problem.weight[j];
-                                double profitChange = problem.profit[i] - problem.profit[j];
-                                ant.weight -= weightChange;
-                                ant.profit -= profitChange;
-                                break;
+                                if (problem.profit[j] > bestProfit) {
+                                    bestItem = j;
+                                    bestProfit = problem.profit[j];
+                                }
                             }
                         }
+                    }
+                    // Swap
+                    if (bestItem != -1) {
+                        ant.z[i] = false;
+                        ant.z[bestItem] = true;
+                        double weightChange = problem.weight[i] - problem.weight[bestItem];
+                        double profitChange = problem.profit[i] - problem.profit[bestItem];
+                        ant.weight -= weightChange;
+                        ant.profit -= profitChange;
                     }
                 }
             }

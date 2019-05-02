@@ -50,6 +50,7 @@ public class TravelingThiefProblem {
     // ! used for fitness normalization
     public float greedyTour = 0;
     public double greedyPackingPlan = 0;
+    public boolean[] greedyZ;
     public int greedyNumItems = 0;
 
     // ! used for faster evaluation
@@ -98,7 +99,7 @@ public class TravelingThiefProblem {
         System.out.println(String.format("greedyTour computed: %f", greedyTour));
 
         // Compute values for KNP pheromone initialization
-        boolean[] z = new boolean[numOfItems];
+        greedyZ = new boolean[numOfItems];
         double weight = 0;
         double profit = 0;
         boolean improved = true;
@@ -107,7 +108,7 @@ public class TravelingThiefProblem {
             int bestItem = -1;
             double bestRatio = 0;
             for (int i = 0; i < numOfItems; i++) {
-                if (!z[i] && weight + this.weight[i] < maxWeight) {
+                if (!greedyZ[i] && weight + this.weight[i] < maxWeight) {
                     double ratio = this.profit[i] / this.weight[i];
                     if (ratio > bestRatio) {
                         improved = true;
@@ -117,7 +118,7 @@ public class TravelingThiefProblem {
                 }
             }
             if (bestItem != -1) {
-                z[bestItem] = true;
+                greedyZ[bestItem] = true;
                 weight += this.weight[bestItem];
                 profit += this.profit[bestItem];
             }
