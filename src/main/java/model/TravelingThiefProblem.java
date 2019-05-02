@@ -48,8 +48,9 @@ public class TravelingThiefProblem {
     public double[] profit;
 
     // ! used for fitness normalization
-    public double maxProfit = 0;
-    public float maxTour = 0;
+    public float greedyTour = 0;
+    public double greedyPackingPlan = 0;
+    public int greedyNumItems = 0;
 
     // ! used for faster evaluation
     private List<LinkedList<Integer>> itemsAtCity = null;
@@ -75,7 +76,7 @@ public class TravelingThiefProblem {
             this.itemsAtCity.get(this.cityOfItem[i]).add(i);
         }
 
-        // Compute values for pheromone initialization
+        // Compute values for TSP pheromone initialization
         boolean[] visited = new boolean[numOfCities];
         int currentCity = 0;
         double averageSpeed = (maxSpeed - minSpeed) / 2 + minSpeed;
@@ -90,10 +91,50 @@ public class TravelingThiefProblem {
                     bestCity = j;
                 }
             }
-            maxTour += bestDist / averageSpeed;
+            greedyTour += bestDist / averageSpeed;
             currentCity = bestCity;
         }
-        maxTour += euclideanDistance(currentCity, 0) / averageSpeed;
+        greedyTour += euclideanDistance(currentCity, 0) / averageSpeed;
+        System.out.println(String.format("greedyTour computed: %f", greedyTour));
+
+        // Compute values for KNP pheromone initialization
+        boolean[] z = new boolean[numOfItems];
+        double weight = 0;
+        double profit = 0;
+        boolean improved = true;
+        while (improved) {
+            improved = false;
+            int bestItem = -1;
+            double bestRatio = 0;
+            for (int i = 0; i < numOfItems; i++) {
+                if (!z[i] && weight + this.weight[i] < maxWeight) {
+                    double ratio = this.profit[i] / this.weight[i];
+                    if (ratio > bestRatio) {
+                        improved = true;
+                        bestItem = i;
+                        bestRatio = ratio;
+                    }
+                }
+            }
+            if (bestItem != -1) {
+                z[bestItem] = true;
+                weight += this.weight[bestItem];
+                profit += this.profit[bestItem];
+            }
+        }
+        greedyPackingPlan = profit;
+
+        double[] weightCopy = this.weight.clone();
+        Arrays.sort(weightCopy);
+        weight = 0;
+        int i = 0;
+        while (weight + weightCopy[i] < maxWeight) {
+            weight += weightCopy[i];
+            greedyNumItems++;
+            i++;
+        }
+        System.out.println(String.format("greedyPackingPlan computed: %f profit, %d items", greedyPackingPlan, greedyNumItems));
+
     }
 
 

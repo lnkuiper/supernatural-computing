@@ -1,7 +1,4 @@
-import algorithms.Algorithm;
-import algorithms.TSPAntColony;
-import algorithms.RandomLocalSearch;
-import algorithms.TSPRunner;
+import algorithms.*;
 import model.Solution;
 import model.TravelingThiefProblem;
 
@@ -21,8 +18,8 @@ class Runner {
 
     public static void main(String[] args) throws ExecutionException, InterruptedException, IOException {
 
-//        List<String> instanceToRun = Arrays.asList("a280-n279");
-        List<String> instanceToRun = Arrays.asList("pla33810-n33809");
+//        List<String> instanceToRun = Arrays.asList("a280-n2790");
+        List<String> instanceToRun = Arrays.asList("fnl4461-n4460");
         //List<String> instanceToRun = Competition.INSTANCES;
 
         for (String instance : instanceToRun) {
@@ -38,8 +35,11 @@ class Runner {
             int numOfSolutions = Competition.numberOfSolutions(problem);
 
             // TODO: remove this test code eventually
-            TSPRunner allColonies = new TSPRunner();
-            List<List<Integer>> tours = allColonies.computeTours(problem);
+            KNPRunner allColonies = new KNPRunner();
+            boolean[] packingPlan = allColonies.computePackingPlan(problem);
+
+//            TSPRunner allColonies = new TSPRunner();
+//            List<List<Integer>> tours = allColonies.computeTours(problem);
             System.exit(0);
 
             // initialize your algorithm

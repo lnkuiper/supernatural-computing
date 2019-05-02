@@ -14,11 +14,11 @@ public class TSPRunner {
             throws ExecutionException, InterruptedException {
 
         // Create as many TSPAntColonies as there are processors, and add them all to a pool
-        int cores = 1; //Runtime.getRuntime().availableProcessors();
+        int cores = Runtime.getRuntime().availableProcessors() * 2;
         ExecutorService pool = Executors.newFixedThreadPool(cores);
         List<Future<List<TSPAnt>>> futures = new ArrayList<>();
         for (int threadNum = 0; threadNum < cores; threadNum++) {
-            float antFrac = (float) 0.1;
+            float antFrac = (float) 0.7;
             int numAnts = (int) (antFrac * problem.numOfCities);
             float phi = (float) (1 / (7*numAnts));
             float qZero = (float) 0.1;
@@ -38,9 +38,7 @@ public class TSPRunner {
                 Thread.sleep(10000);
             }
             List<TSPAnt> ants = f.get();
-            for (TSPAnt a : ants) {
-                minHeap.add(a);
-            }
+            minHeap.addAll(ants);
         }
 
         // Get tours from ants in minHeap, print and return

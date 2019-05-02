@@ -19,7 +19,7 @@ public class Solution {
     //! the profit the thief made on that tour
     public double profit = -1.0;
 
-    //! objective value if you want to computeTours the single-objective problem using R
+    //! objective profit if you want to computeTours the single-objective problem using R
     public double singleObjective = -1.0;
 
     //! the objective values of the function

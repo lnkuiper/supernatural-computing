@@ -2,9 +2,9 @@ package algorithms;
 
 import model.TravelingThiefProblem;
 import util.FixedSizePriorityQueue;
+import util.SymmetricArray;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -29,7 +29,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
     private boolean bestAtIteration;
 
     // Model weights (learned)
-    private float[][] pheromones;
+    private SymmetricArray pheromones;
 
     public TSPAntColony(TravelingThiefProblem problem,
                         int threadNum, int iterations, int numAnts,
@@ -49,7 +49,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
         this.phi = phi;
         this.bestAtIteration = bestAtIteration;
 
-        initializePheromones();
+        pheromones = new SymmetricArray(problem.numOfCities, tauZero());
     }
 
     @Override
@@ -133,21 +133,11 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
     }
 
     private float tauZero() {
-        return (float) 1 / problem.maxTour;
+        return (float) 1 / problem.greedyTour;
     }
 
     private float deltaTau(float fitness) {
         return 1 / fitness;
-    }
-
-    private void initializePheromones() {
-        int numOfCities = problem.numOfCities;
-
-        // Initialize uniform pheromones
-        pheromones = new float[numOfCities][numOfCities];
-        for (float[] row : pheromones) {
-            Arrays.fill(row, tauZero());
-        }
     }
 
     private int weightedChoice(TSPAnt ant) {
@@ -159,7 +149,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
             for (int i = 0; i < problem.numOfCities; i++) {
                 if (!ant.visitedCities[i]) {
                     double distance = problem.euclideanDistance(ant.currentCity, i);
-                    double greedyProb = pheromones[ant.currentCity][i] * Math.pow(1 / distance, beta);
+                    double greedyProb = pheromones.get(ant.currentCity, i) * Math.pow(1 / distance, beta);
                     if (greedyProb > greedyMax) {
                         greedyMax = greedyProb;
                         selectedCity = i;
@@ -174,7 +164,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
         for (int i = 0; i < problem.numOfCities; i++) {
             if (!ant.visitedCities[i]) {
                 double distance = problem.euclideanDistance(ant.currentCity, i);
-                probabilities[i] = Math.pow(pheromones[ant.currentCity][i], alpha) * Math.pow(1 / distance, beta);
+                probabilities[i] = Math.pow(pheromones.get(ant.currentCity, i), alpha) * Math.pow(1 / distance, beta);
             }
             else {
                 probabilities[i] = 0;
@@ -202,28 +192,38 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
         // 2-OPT
         List<Integer> bestTour = ant.pi;
         float bestLength = ant.travelTime;
-        System.out.println(String.format("Before 2OPT:", bestLength));
         boolean improved = true;
         while (improved) {
             improved = false;
             for (int i = 1; i < problem.numOfCities - 2; i++) {
                 for (int j = i + 1; j < problem.numOfCities; j++) {
-                    List<Integer> reversePart = bestTour.subList(i - 1, j - 1);
-                    Collections.reverse(reversePart);
-                    float length = tourLength(bestTour);
-                    if (length < bestLength) {
-                        improved = true;
-                        bestLength = length;
-                    } else {
+                    int fromA = i - 2;
+                    if (fromA == -1)
+                        fromA = problem.numOfCities - 1;
+                    fromA = bestTour.get(fromA);
+                    int toA = i - 1;
+                    toA = bestTour.get(toA);
+
+                    int fromB = j - 2;
+                    if (fromB == -1)
+                        fromB = problem.numOfCities - 1;
+                    fromB = bestTour.get(fromB);
+                    int toB = j - 1;
+                    toB = bestTour.get(toB);
+
+                    float originalDist = problem.euclideanDistance(fromA, toA) + problem.euclideanDistance(fromB, toB);
+                    float proposedDist = problem.euclideanDistance(fromA, fromB) + problem.euclideanDistance(toA, toB);
+
+                    if (proposedDist < originalDist) {
+                        List<Integer> reversePart = bestTour.subList(i - 1, j - 1);
                         Collections.reverse(reversePart);
+                        bestLength = bestLength - originalDist + proposedDist;
                     }
                 }
             }
-            System.out.println("Iteration");
         }
         ant.pi = bestTour;
         ant.travelTime = bestLength;
-        System.out.println(String.format("After 2OPT:", bestLength));
         return ant;
     }
 
@@ -238,8 +238,8 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
 
     private void localPheromoneUpdate(int currentCity, int nextCity) {
         // Bi-directional
-        pheromones[currentCity][nextCity] = (1 - phi) * pheromones[currentCity][nextCity] + phi * tauZero();
-        pheromones[nextCity][currentCity] = (1 - phi) * pheromones[nextCity][currentCity] + phi * tauZero();
+        float pheromoneVal = (1 - phi) * pheromones.get(currentCity, nextCity) + phi * tauZero();
+        pheromones.set(currentCity, nextCity, pheromoneVal);
     }
 
     private void globalPheromoneUpdate(TSPAnt ant) {
@@ -249,18 +249,18 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
             int to = ant.pi.get(i + 1);
 
             // Bi-directional
-            pheromones[from][to] = (1 - rho) * pheromones[from][to] + rho * deltaTau;
-            pheromones[to][from] = (1 - rho) * pheromones[to][from] + rho * deltaTau;
+            float pheromoneVal = (1 - rho) * pheromones.get(from, to) + rho * deltaTau;
+            pheromones.set(from, to, pheromoneVal);
         }
         int from = ant.pi.get(problem.numOfCities - 1);
         int to = ant.pi.get(0);
 
-        pheromones[from][to] = (1 - rho) * pheromones[from][to] + rho * deltaTau;
-        pheromones[to][from] = (1 - rho) * pheromones[to][from] + rho * deltaTau;
+        float pheromoneVal = (1 - rho) * pheromones.get(from, to) + rho * deltaTau;
+        pheromones.set(from, to, pheromoneVal);
 
         // TODO: think about these ideas
         // Ideas from sudoku paper to prevent stagnation:
-        // Add best value pheromone evaporation?
+        // Add best profit pheromone evaporation?
         // There is no global evaporation of pheromone in ACS, might want to add?
     }
 }
