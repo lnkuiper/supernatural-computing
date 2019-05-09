@@ -51,6 +51,7 @@ public class TravelingThiefProblem {
     public float greedyTour = 0;
     public double greedyProfit = 0;
     public boolean[] greedyPackingPlan;
+    public double greedyWeight;
     public int greedyNumItems = 0;
 
     // ! used for faster evaluation
@@ -66,7 +67,6 @@ public class TravelingThiefProblem {
         if (numOfCities == -1 || numOfItems == -1 || minSpeed == -1 || maxSpeed == -1|| maxWeight == -1
                 || R == Double.POSITIVE_INFINITY)
             throw new RuntimeException("Error while loading problem. Some variables are not initialized");
-
 
         // initialize the itemsAtCity data structure
         this.itemsAtCity = new ArrayList<>(this.numOfCities);
@@ -124,6 +124,7 @@ public class TravelingThiefProblem {
             }
         }
         greedyProfit = profit;
+        greedyWeight = weight;
 
         double[] weightCopy = this.weight.clone();
         Arrays.sort(weightCopy);

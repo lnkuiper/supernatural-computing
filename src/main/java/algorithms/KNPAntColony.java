@@ -49,9 +49,14 @@ public class KNPAntColony implements Callable<KNPAnt> {
 
         pheromones = new double[problem.numOfItems];
         Arrays.fill(pheromones, tauZero());
+        KNPAnt ant = new KNPAnt(problem.numOfItems);
+        ant.z = problem.greedyPackingPlan;
+        ant.weight = problem.greedyWeight;
+        ant.profit = problem.greedyProfit;
+        ant = localSearch(ant);
         for (int i = 0; i < problem.numOfItems; i++) {
-            if (problem.greedyPackingPlan[i]) {
-                pheromones[i] *= 3;
+            if (ant.z[i]) {
+                pheromones[i] *= 1.5;
             }
         }
     }
