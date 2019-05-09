@@ -49,8 +49,8 @@ public class TravelingThiefProblem {
 
     // ! used for fitness normalization
     public float greedyTour = 0;
-    public double greedyPackingPlan = 0;
-    public boolean[] greedyZ;
+    public double greedyProfit = 0;
+    public boolean[] greedyPackingPlan;
     public int greedyNumItems = 0;
 
     // ! used for faster evaluation
@@ -99,7 +99,7 @@ public class TravelingThiefProblem {
         System.out.println(String.format("greedyTour computed: %f", greedyTour));
 
         // Compute values for KNP pheromone initialization
-        greedyZ = new boolean[numOfItems];
+        greedyPackingPlan = new boolean[numOfItems];
         double weight = 0;
         double profit = 0;
         boolean improved = true;
@@ -108,7 +108,7 @@ public class TravelingThiefProblem {
             int bestItem = -1;
             double bestRatio = 0;
             for (int i = 0; i < numOfItems; i++) {
-                if (!greedyZ[i] && weight + this.weight[i] < maxWeight) {
+                if (!greedyPackingPlan[i] && weight + this.weight[i] < maxWeight) {
                     double ratio = this.profit[i] / this.weight[i];
                     if (ratio > bestRatio) {
                         improved = true;
@@ -118,12 +118,12 @@ public class TravelingThiefProblem {
                 }
             }
             if (bestItem != -1) {
-                greedyZ[bestItem] = true;
+                greedyPackingPlan[bestItem] = true;
                 weight += this.weight[bestItem];
                 profit += this.profit[bestItem];
             }
         }
-        greedyPackingPlan = profit;
+        greedyProfit = profit;
 
         double[] weightCopy = this.weight.clone();
         Arrays.sort(weightCopy);
@@ -134,7 +134,7 @@ public class TravelingThiefProblem {
             greedyNumItems++;
             i++;
         }
-        System.out.println(String.format("greedyPackingPlan computed: %f profit, %d items", greedyPackingPlan, greedyNumItems));
+        System.out.println(String.format("greedyProfit computed: %f profit, %d items", greedyProfit, greedyNumItems));
 
     }
 

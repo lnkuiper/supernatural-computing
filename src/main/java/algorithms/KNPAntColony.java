@@ -4,7 +4,6 @@ import model.TravelingThiefProblem;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -51,7 +50,7 @@ public class KNPAntColony implements Callable<KNPAnt> {
         pheromones = new double[problem.numOfItems];
         Arrays.fill(pheromones, tauZero());
         for (int i = 0; i < problem.numOfItems; i++) {
-            if (problem.greedyZ[i]) {
+            if (problem.greedyPackingPlan[i]) {
                 pheromones[i] *= 3;
             }
         }
@@ -124,7 +123,7 @@ public class KNPAntColony implements Callable<KNPAnt> {
     }
 
     private double tauZero() {
-        return problem.greedyPackingPlan / 4;
+        return problem.greedyProfit / 4;
     }
 
     private double deltaTau(double profit) {
