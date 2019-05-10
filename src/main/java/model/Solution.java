@@ -13,7 +13,7 @@ public class Solution {
     //! the packing plan
     public List<Boolean> z;
 
-    //! the travelTime the thief needed for traveling
+    //! the travelDistance the thief needed for traveling
     public double time = -1.0;
 
     //! the profit the thief made on that tour

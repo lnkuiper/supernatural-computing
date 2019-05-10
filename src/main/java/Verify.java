@@ -27,7 +27,7 @@ public class Verify {
 
     static final ClassLoader LOADER = Runner.class.getClassLoader();
 
-    public static void main(String[] args)  throws IOException {
+    public static void main(String[] args)  throws ClassNotFoundException, IOException {
 
         final String TEAM = "jomar";
 
@@ -78,7 +78,7 @@ public class Verify {
                     if (pi.size() != problem.numOfCities) {
                         System.out.println("ERROR");
                         System.out.println(String.format("Solution %s", counter));
-                        System.out.println(String.format("Wrong tour travelTime %s != %s", pi.size(), problem.numOfCities));
+                        System.out.println(String.format("Wrong tour travelDistance %s != %s", pi.size(), problem.numOfCities));
                         System.out.println("Submission can not be accepted.");
                         System.exit(1);
                     }
@@ -116,7 +116,7 @@ public class Verify {
                     if (Math.abs(time - solution.time) > precision || Math.abs(profit - solution.profit) > precision) {
                         System.out.println("ERROR");
                         System.out.println(String.format("Solution %s", counter));
-                        System.out.println(String.format("Reported travelTime is %s. Evaluated %s.", time, solution.time));
+                        System.out.println(String.format("Reported travelDistance is %s. Evaluated %s.", time, solution.time));
                         System.out.println(String.format("Reported profit is %s. Evaluated %s.", profit, solution.profit));
                         System.out.println("Submissions file do not match!");
                         System.exit(1);

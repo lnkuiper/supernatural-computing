@@ -80,7 +80,7 @@ public abstract class Util {
     }
 
 
-	public static TravelingThiefProblem readProblem(InputStream is) throws IOException {
+	public static TravelingThiefProblem readProblem(InputStream is) throws ClassNotFoundException, IOException {
 
         TravelingThiefProblem problem = new TravelingThiefProblem();
 
@@ -137,7 +137,6 @@ public abstract class Util {
 
         br.close();
 
-        problem.initialize();
         return problem;
 	}
 

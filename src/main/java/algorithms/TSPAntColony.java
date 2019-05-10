@@ -50,6 +50,16 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
         this.bestAtIteration = bestAtIteration;
 
         pheromones = new SymmetricArray(problem.numOfCities, tauZero());
+        TSPAnt ant = new TSPAnt(problem.numOfCities);
+        ant.pi = problem.greedyTour;
+        ant.travelDistance = problem.greedyDistance;
+        ant = localSearch(ant);
+        for (int i = 0; i < problem.numOfCities - 1; i++) {
+            int from = ant.pi.get(i);
+            int to = ant.pi.get(i + 1);
+            pheromones.set(from, to, tauZero() * 2);
+        }
+        pheromones.set(ant.pi.get(problem.numOfCities - 1), 0, tauZero() * 2);
     }
 
     @Override
@@ -83,21 +93,21 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
                 int currentCity = ant.currentCity;
                 int nextCity = ant.pi.get(0);
                 float distance = problem.euclideanDistance(currentCity, nextCity);
-                ant.travelTime += distance;
+                ant.travelDistance += distance;
                 localPheromoneUpdate(currentCity, nextCity);
             }
 
             // Identify best of iteration
             for (TSPAnt ant : ants) {
-                if (ant.travelTime < iterationBestFitness) {
-                    iterationBestFitness = ant.travelTime;
+                if (ant.travelDistance < iterationBestFitness) {
+                    iterationBestFitness = ant.travelDistance;
                     iterationBestAnt = ant;
                 }
             }
 
             // Find local optimum
             iterationBestAnt = localSearch(iterationBestAnt);
-            iterationBestFitness = iterationBestAnt.travelTime;
+            iterationBestFitness = iterationBestAnt.travelDistance;
 
             // Identify best so far
             if (iterationBestFitness < bestFitness) {
@@ -133,7 +143,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
     }
 
     private float tauZero() {
-        return (float) 1 / problem.greedyTour;
+        return (float) 1 / (4 * problem.greedyDistance);
     }
 
     private float deltaTau(float fitness) {
@@ -191,7 +201,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
     private TSPAnt localSearch(TSPAnt ant) {
         // 2-OPT
         List<Integer> bestTour = ant.pi;
-        float bestLength = ant.travelTime;
+        float bestLength = ant.travelDistance;
         boolean improved = true;
         while (improved) {
             improved = false;
@@ -223,7 +233,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
             }
         }
         ant.pi = bestTour;
-        ant.travelTime = bestLength;
+        ant.travelDistance = bestLength;
         return ant;
     }
 
@@ -243,7 +253,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
     }
 
     private void globalPheromoneUpdate(TSPAnt ant) {
-        float deltaTau = deltaTau(ant.travelTime);
+        float deltaTau = deltaTau(ant.travelDistance);
         for (int i = 0; i < problem.numOfCities - 1; i++) {
             int from = ant.pi.get(i);
             int to = ant.pi.get(i + 1);

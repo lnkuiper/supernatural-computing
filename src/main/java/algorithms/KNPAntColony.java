@@ -56,7 +56,7 @@ public class KNPAntColony implements Callable<KNPAnt> {
         ant = localSearch(ant);
         for (int i = 0; i < problem.numOfItems; i++) {
             if (ant.z[i]) {
-                pheromones[i] *= 1.5;
+                pheromones[i] *= 3;
             }
         }
     }
@@ -143,8 +143,8 @@ public class KNPAntColony implements Callable<KNPAnt> {
             int bestItem = -1;
             for (int i = 0; i < problem.numOfItems; i++) {
                 if (!ant.z[i] && ant.weight + problem.weight[i] <= problem.maxWeight) {
-                    double ratio = problem.profit[i] / problem.weight[i];
-                    double prob = pheromones[i] * Math.pow(ratio, beta);
+                    double eta = problem.itemEta(i);
+                    double prob = pheromones[i] * Math.pow(eta, beta);
                     if (prob > bestProb) {
                         bestProb = prob;
                         bestItem = i;
@@ -158,7 +158,7 @@ public class KNPAntColony implements Callable<KNPAnt> {
         double[] probabilities = new double[problem.numOfItems];
         for (int i = 0; i < problem.numOfItems; i++) {
             if (!ant.z[i] && ant.weight + problem.weight[i] <= problem.maxWeight) {
-                double eta = problem.profit[i]/problem.weight[i];
+                double eta = problem.itemEta(i);
                 probabilities[i] = Math.pow(pheromones[i], alpha) * Math.pow(eta, beta);
             }
             else {
@@ -196,7 +196,6 @@ public class KNPAntColony implements Callable<KNPAnt> {
                     double bestProfit = 0;
                     for (int j = 0; j < problem.numOfItems; j++) {
                         if (!ant.z[j]) {
-                            // TODO: select best item instead of first item
                             if (problem.weight[i] + problem.maxWeight - ant.weight >= problem.weight[j] && problem.profit[i] <= problem.profit[j]) {
                                 if (problem.profit[j] > bestProfit) {
                                     bestItem = j;

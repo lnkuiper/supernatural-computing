@@ -20,12 +20,12 @@ public class KNPRunner {
         List<Future<KNPAnt>> futures = new ArrayList<>();
         for (int threadNum = 0; threadNum < cores; threadNum++) {
             float antFrac = (float) 0.01;
-            int numAnts = 1;//(int) (antFrac * problem.numOfItems);
+            int numAnts = 10;//(int) (antFrac * problem.numOfItems);
             float phi = (float) (1 / (5*numAnts));
             float qZero = (float) 0.1;
             float rho = (float) 0.15;
             Callable<KNPAnt> AC = new KNPAntColony(problem,
-                    threadNum, 100, numAnts,
+                    threadNum, 100000, numAnts,
                     15, 30, qZero,
                     rho, phi, false);
             Future<KNPAnt> future = pool.submit(AC);
