@@ -15,20 +15,20 @@ public class KNPRunner {
             throws ExecutionException, InterruptedException {
 
         // Create as many KNPAntColonies as there are processors, and add them all to a pool
-        int cores = Runtime.getRuntime().availableProcessors();
+        int cores = 1; //Runtime.getRuntime().availableProcessors();
         ExecutorService pool = Executors.newFixedThreadPool(cores);
         List<Future<KNPAnt>> futures = new ArrayList<>();
         for (int threadNum = 0; threadNum < cores; threadNum++) {
             float antFrac = (float) 0.01;
             int numAnts = 10;//(int) (antFrac * problem.numOfItems);
-            float phi = (float) (1 / (5*numAnts));
+            float phi = (float) (1 / (2*numAnts));
             float qZero = (float) 0.1;
             float rho = (float) 0.15;
             Callable<KNPAnt> AC = new KNPAntColony(problem,
-                    threadNum, 100000, numAnts,
+                    threadNum, 10, numAnts,
                     15, 30, qZero,
                     rho, phi, false,
-                    0);
+                    0.4,0.4, threadNum);
             Future<KNPAnt> future = pool.submit(AC);
             futures.add(future);
         }

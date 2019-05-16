@@ -26,18 +26,29 @@ public class KNPAntColony implements Callable<KNPAnt> {
     private float phi;
     private boolean bestAtIteration;
 
+    // For Pareto front
+    private double w;
+    private double c;
+
     // Model weights (learned)
     private double[] pheromones;
 
-    // Of this colony's tour
+    // Related to this colony's tour
+    private List<Integer> tour;
     private double[] deltaTimes;
-    private double baseTime;
+    private double maxItemDeltaTimes = 0;
+
+    // Related to packing plan
+    private boolean[] greedyPackingPlan;
+    private double greedyProfit;
+    private double greedyWeight;
+    private int greedyNumItems;
 
     public KNPAntColony(TravelingThiefProblem problem,
                         int threadNum, int iterations, int numAnts,
                         float alpha, float beta, float qZero,
                         float rho, float phi, boolean bestAtIteration,
-                        int tourIndex) {
+                        double w, double c, int tourIndex) {
         this.problem = problem;
 
         this.threadNum = threadNum;
@@ -52,21 +63,71 @@ public class KNPAntColony implements Callable<KNPAnt> {
         this.phi = phi;
         this.bestAtIteration = bestAtIteration;
 
-        this.baseTime = problem.getTourLength((ArrayList<Integer>) problem.bestTours.get(tourIndex));
-        this.deltaTimes = problem.getDeltaTimes((ArrayList<Integer>) problem.bestTours.get(tourIndex));
+        this.c = c;
+        this.w = w;
+
+        this.tour = problem.bestTours.get(tourIndex);
+        this.deltaTimes = problem.getDeltaTimes(tour);
+        for (double dt : deltaTimes) {
+            if (dt > maxItemDeltaTimes) {
+                maxItemDeltaTimes = dt;
+            }
+        }
+
+        initialize();
 
         pheromones = new double[problem.numOfItems];
         Arrays.fill(pheromones, tauZero());
         KNPAnt ant = new KNPAnt(problem.numOfItems);
-        ant.z = problem.greedyPackingPlan;
-        ant.weight = problem.greedyWeight;
-        ant.profit = problem.greedyProfit;
+        ant.z = greedyPackingPlan;
+        ant.weight = greedyWeight;
+        ant.profit = greedyProfit;
         ant = localSearch(ant);
         for (int i = 0; i < problem.numOfItems; i++) {
             if (ant.z[i]) {
                 pheromones[i] *= 3;
             }
         }
+    }
+
+    private void initialize() {
+        greedyPackingPlan = new boolean[problem.numOfItems];
+        double weight = 0;
+        double profit = 0;
+        boolean improved = true;
+        while (improved) {
+            improved = false;
+            int bestItem = -1;
+            double bestRatio = 0;
+            for (int i = 0; i < problem.numOfItems; i++) {
+                if (!greedyPackingPlan[i] && weight + problem.weight[i] < problem.maxWeight * c) {
+                    double ratio = itemEta(i);
+                    if (ratio > bestRatio) {
+                        improved = true;
+                        bestItem = i;
+                        bestRatio = ratio;
+                    }
+                }
+            }
+            if (bestItem != -1) {
+                greedyPackingPlan[bestItem] = true;
+                weight += problem.weight[bestItem];
+                profit += problem.profit[bestItem];
+            }
+        }
+        greedyProfit = profit;
+        greedyWeight = weight;
+
+        double[] weightCopy = problem.weight.clone();
+        Arrays.sort(weightCopy);
+        weight = 0;
+        int i = 0;
+        while (weight + weightCopy[i] < problem.maxWeight * c) {
+            weight += weightCopy[i];
+            greedyNumItems++;
+            i++;
+        }
+        System.out.println(String.format("greedyProfit computed: %f profit, %d items", greedyProfit, greedyNumItems));
     }
 
     @Override
@@ -85,7 +146,7 @@ public class KNPAntColony implements Callable<KNPAnt> {
             }
             boolean[] fullAnt = new boolean[numAnts];
             // Each ant walks simultaneously, visits each city
-            for (int j = 0; j < problem.greedyNumItems; j++) {
+            for (int j = 0; j < greedyNumItems; j++) {
                 int k = 0;
                 for (KNPAnt ant : ants) {
                     if(!fullAnt[k]) {
@@ -138,7 +199,7 @@ public class KNPAntColony implements Callable<KNPAnt> {
 
 
     private double tauZero() {
-        return problem.greedyProfit / 4;
+        return greedyProfit / 4;
     }
 
     private double deltaTau(double profit) {
@@ -152,8 +213,8 @@ public class KNPAntColony implements Callable<KNPAnt> {
             double bestProb = 0;
             int bestItem = -1;
             for (int i = 0; i < problem.numOfItems; i++) {
-                if (!ant.z[i] && ant.weight + problem.weight[i] <= problem.maxWeight) {
-                    double eta = problem.itemEta(i,0.5);
+                if (!ant.z[i] && ant.weight + problem.weight[i] <= problem.maxWeight * c) {
+                    double eta = itemEta(i);
                     double prob = pheromones[i] * Math.pow(eta, beta);
                     if (prob > bestProb) {
                         bestProb = prob;
@@ -167,8 +228,8 @@ public class KNPAntColony implements Callable<KNPAnt> {
         // Standard proportional selection rule
         double[] probabilities = new double[problem.numOfItems];
         for (int i = 0; i < problem.numOfItems; i++) {
-            if (!ant.z[i] && ant.weight + problem.weight[i] <= problem.maxWeight) {
-                double eta = problem.itemEta(i,0.5);
+            if (!ant.z[i] && ant.weight + problem.weight[i] <= problem.maxWeight * c) {
+                double eta = itemEta(i);
                 probabilities[i] = Math.pow(pheromones[i], alpha) * Math.pow(eta, beta);
             }
             else {
@@ -206,7 +267,7 @@ public class KNPAntColony implements Callable<KNPAnt> {
                     double bestProfit = 0;
                     for (int j = 0; j < problem.numOfItems; j++) {
                         if (!ant.z[j]) {
-                            if (problem.weight[i] + problem.maxWeight - ant.weight >= problem.weight[j] && problem.profit[i] <= problem.profit[j]) {
+                            if (problem.weight[i] + problem.maxWeight * c - ant.weight >= problem.weight[j] && problem.profit[i] <= problem.profit[j] && deltaTimes[j] < deltaTimes[i]) {
                                 if (problem.profit[j] > bestProfit) {
                                     bestItem = j;
                                     bestProfit = problem.profit[j];
@@ -251,12 +312,21 @@ public class KNPAntColony implements Callable<KNPAnt> {
     }
 
     private double getTourTime(boolean[] z){
-        double tourTime = baseTime;
-        for (int i = 0; i < z.length; i++) {
-            if(z[i]){
-                tourTime += this.deltaTimes[i];
+        double tourTime = 0;
+        double weight = 0;
+        for (int i = 0; i < problem.numOfCities; i++) {
+            for (int item : problem.getItemsAtCity(tour.get(i))) {
+                if(z[item]){
+                    weight += problem.weight[item];
+                }
             }
+            double speed = problem.speedFromWeight(weight);
+            tourTime += problem.euclideanDistance(tour.get(i), tour.get((i+1)%problem.numOfCities)) / speed;
         }
         return tourTime;
+    }
+
+    public double itemEta(int i) {
+        return (problem.profit[i]/problem.maxItemProfit) / (w * problem.weight[i]/problem.maxItemWeight + (1 - w) * deltaTimes[i]/maxItemDeltaTimes);
     }
 }

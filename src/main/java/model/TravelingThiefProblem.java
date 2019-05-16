@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import static jdk.nashorn.internal.runtime.regexp.joni.Syntax.Java;
+
 /**
  * This class represents the main problem to be solved. It stores all variables which are necessary
  * to evaluate the objective function.
@@ -44,15 +46,11 @@ public class TravelingThiefProblem {
 
     // ! the weight of each item
     public double[] weight;
-    private double maxItemWeight = -1;
+    public double maxItemWeight = -1;
 
     // ! the profit of each item
     public double[] profit;
-    private double maxItemProfit = -1;
-
-    // ! the time increase of each item
-    private double[] deltaTimes;
-    private double maxItemDeltaTimes = -1;
+    public double maxItemProfit = -1;
 
     // ! used for faster evaluation
     private List<LinkedList<Integer>> itemsAtCity = null;
@@ -60,12 +58,6 @@ public class TravelingThiefProblem {
     // ! used for fitness normalization
     public float greedyDistance = 0;
     public List<Integer> greedyTour = new ArrayList<>();
-
-    // ! used for fitness normalization
-    public double greedyProfit = 0;
-    public boolean[] greedyPackingPlan;
-    public double greedyWeight;
-    public int greedyNumItems = 0;
 
     // ! best tours from TSP used for TTP
     public List<List<Integer>> bestTours;
@@ -123,14 +115,6 @@ public class TravelingThiefProblem {
             bestTours = (ArrayList<List<Integer>>) ois.readObject();
         }
 
-        // Compute time increase for picking up each item, and the max increase for normalization
-        deltaTimes = getDeltaTimes((ArrayList<Integer>) bestTours.get(0));
-        for (double dt : deltaTimes) {
-            if (dt > maxItemDeltaTimes) {
-                maxItemDeltaTimes = dt;
-            }
-        }
-
         // Compute max item profit for normalization
         for (double ip : profit) {
             if (ip > maxItemProfit) {
@@ -144,85 +128,33 @@ public class TravelingThiefProblem {
                 maxItemWeight = iw;
             }
         }
-
-        // Compute values for KNP pheromone initialization
-        greedyPackingPlan = new boolean[numOfItems];
-        double weight = 0;
-        double profit = 0;
-        boolean improved = true;
-        while (improved) {
-            improved = false;
-            int bestItem = -1;
-            double bestRatio = 0;
-            for (int i = 0; i < numOfItems; i++) {
-                if (!greedyPackingPlan[i] && weight + this.weight[i] < maxWeight) {
-                    double ratio = itemEta(i,0.5);
-                    if (ratio > bestRatio) {
-                        improved = true;
-                        bestItem = i;
-                        bestRatio = ratio;
-                    }
-                }
-            }
-            if (bestItem != -1) {
-                greedyPackingPlan[bestItem] = true;
-                weight += this.weight[bestItem];
-                profit += this.profit[bestItem];
-            }
-        }
-        greedyProfit = profit;
-        greedyWeight = weight;
-
-        double[] weightCopy = this.weight.clone();
-        Arrays.sort(weightCopy);
-        weight = 0;
-        int i = 0;
-        while (weight + weightCopy[i] < maxWeight) {
-            weight += weightCopy[i];
-            greedyNumItems++;
-            i++;
-        }
-        System.out.println(String.format("greedyProfit computed: %f profit, %d items", greedyProfit, greedyNumItems));
-//        Arrays.sort(deltaTimes);
-//        System.out.println(deltaTimes[deltaTimes.length-1]);
-//        Arrays.sort(this.weight);
-//        System.out.println(this.weight[this.weight.length-1]);
-//        Arrays.sort(this.profit);
-//        System.out.println(this.profit[this.profit.length-1]);
     }
-    public double getTourLength(ArrayList<Integer> tour){
+    public double getTourLength(List<Integer> tour){
         double distance = 0;
-        for (int i = 0; i < numOfCities-1; i++) {
-            distance += euclideanDistance(tour.get(i), tour.get(i + 1));
+        for (int i = 0; i < numOfCities; i++) {
+            distance += euclideanDistance(tour.get(i), tour.get((i+1)%numOfCities));
         }
-        distance += euclideanDistance(tour.get(numOfCities-1), 0);
         return distance;
     }
 
-    public double[] getDeltaTimes(ArrayList<Integer> tour){
+    public double[] getDeltaTimes(List<Integer> tour){
         double[] deltaTimes = new double[numOfItems];
-        double traveledDistance = 0;
-        double totalDistance = getTourLength(tour);
+        double distanceToTravel = getTourLength(tour);
         for (int i = 0; i < numOfCities; i++) {
             List<Integer> items = getItemsAtCity(tour.get(i));
             for (int item: items){
-                deltaTimes[item] = (totalDistance - traveledDistance) * speedFromWeight(weight[item]);
+                deltaTimes[item] = distanceToTravel / speedFromWeight(weight[item]) - distanceToTravel;
             }
-            if(i<numOfCities-1){
-                traveledDistance += euclideanDistance(tour.get(i), tour.get(i+1));
-
+            if (i != numOfCities - 1) {
+                distanceToTravel -= euclideanDistance(i, i + 1);
             }
         }
+
         return deltaTimes;
     }
 
-    public double itemEta(int i, double w) {
-        w = 0.5; // How much weight to assign to weight / deltaTimes
-        return (profit[i]/maxItemProfit) / (w * weight[i]/maxItemWeight + (1 - w) * deltaTimes[i]/maxItemDeltaTimes);
-    }
-
-    private double speedFromWeight(double weight){
-        return minSpeed + (maxWeight-weight)/maxWeight * (maxSpeed - minSpeed);
+    public double speedFromWeight(double weight){
+        return Math.max(minSpeed, maxSpeed - (weight/maxWeight)*(maxSpeed-minSpeed));
     }
 
     /**
