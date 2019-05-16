@@ -29,10 +29,15 @@ public class KNPAntColony implements Callable<KNPAnt> {
     // Model weights (learned)
     private double[] pheromones;
 
+    // Of this colony's tour
+    private double[] deltaTimes;
+    private double baseTime;
+
     public KNPAntColony(TravelingThiefProblem problem,
                         int threadNum, int iterations, int numAnts,
                         float alpha, float beta, float qZero,
-                        float rho, float phi, boolean bestAtIteration) {
+                        float rho, float phi, boolean bestAtIteration,
+                        int tourIndex) {
         this.problem = problem;
 
         this.threadNum = threadNum;
@@ -46,6 +51,9 @@ public class KNPAntColony implements Callable<KNPAnt> {
         this.rho = rho;
         this.phi = phi;
         this.bestAtIteration = bestAtIteration;
+
+        this.baseTime = problem.getTourLength((ArrayList<Integer>) problem.bestTours.get(tourIndex));
+        this.deltaTimes = problem.getDeltaTimes((ArrayList<Integer>) problem.bestTours.get(tourIndex));
 
         pheromones = new double[problem.numOfItems];
         Arrays.fill(pheromones, tauZero());
@@ -122,10 +130,12 @@ public class KNPAntColony implements Callable<KNPAnt> {
                 globalPheromoneUpdate(bestAnt);
             }
 
-            System.out.println(String.format("T%d, I%d: \tprofit = %f, weight = %f", threadNum, i, bestProfit, bestAnt.weight));
+            System.out.println(String.format("T%d, I%d: \tprofit = %f, weight = %f, time = %f", threadNum, i, bestProfit, bestAnt.weight, getTourTime(bestAnt.z)));
         }
         return bestAnt;
     }
+
+
 
     private double tauZero() {
         return problem.greedyProfit / 4;
@@ -143,7 +153,7 @@ public class KNPAntColony implements Callable<KNPAnt> {
             int bestItem = -1;
             for (int i = 0; i < problem.numOfItems; i++) {
                 if (!ant.z[i] && ant.weight + problem.weight[i] <= problem.maxWeight) {
-                    double eta = problem.itemEta(i);
+                    double eta = problem.itemEta(i,0.5);
                     double prob = pheromones[i] * Math.pow(eta, beta);
                     if (prob > bestProb) {
                         bestProb = prob;
@@ -158,7 +168,7 @@ public class KNPAntColony implements Callable<KNPAnt> {
         double[] probabilities = new double[problem.numOfItems];
         for (int i = 0; i < problem.numOfItems; i++) {
             if (!ant.z[i] && ant.weight + problem.weight[i] <= problem.maxWeight) {
-                double eta = problem.itemEta(i);
+                double eta = problem.itemEta(i,0.5);
                 probabilities[i] = Math.pow(pheromones[i], alpha) * Math.pow(eta, beta);
             }
             else {
@@ -238,5 +248,15 @@ public class KNPAntColony implements Callable<KNPAnt> {
         // Ideas from sudoku paper to prevent stagnation:
         // Add best profit pheromone evaporation?
         // There is no global evaporation of pheromone in ACS, might want to add?
+    }
+
+    private double getTourTime(boolean[] z){
+        double tourTime = baseTime;
+        for (int i = 0; i < z.length; i++) {
+            if(z[i]){
+                tourTime += this.deltaTimes[i];
+            }
+        }
+        return tourTime;
     }
 }

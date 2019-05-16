@@ -68,7 +68,7 @@ public class TravelingThiefProblem {
     public int greedyNumItems = 0;
 
     // ! best tours from TSP used for TTP
-    private List<List<Integer>> bestTours;
+    public List<List<Integer>> bestTours;
 
     // TODO: We want to limit time spent to create the curve, instead of knapsack capacity
     // TODO: Initialize minTime (tour without picking up items), and maxTime (picking up maximum profit along the tour)
@@ -156,7 +156,7 @@ public class TravelingThiefProblem {
             double bestRatio = 0;
             for (int i = 0; i < numOfItems; i++) {
                 if (!greedyPackingPlan[i] && weight + this.weight[i] < maxWeight) {
-                    double ratio = itemEta(i);
+                    double ratio = itemEta(i,0.5);
                     if (ratio > bestRatio) {
                         improved = true;
                         bestItem = i;
@@ -190,7 +190,7 @@ public class TravelingThiefProblem {
 //        Arrays.sort(this.profit);
 //        System.out.println(this.profit[this.profit.length-1]);
     }
-    private double getTourLength(ArrayList<Integer> tour){
+    public double getTourLength(ArrayList<Integer> tour){
         double distance = 0;
         for (int i = 0; i < numOfCities-1; i++) {
             distance += euclideanDistance(tour.get(i), tour.get(i + 1));
@@ -199,7 +199,7 @@ public class TravelingThiefProblem {
         return distance;
     }
 
-    private double[] getDeltaTimes(ArrayList<Integer> tour){
+    public double[] getDeltaTimes(ArrayList<Integer> tour){
         double[] deltaTimes = new double[numOfItems];
         double traveledDistance = 0;
         double totalDistance = getTourLength(tour);
@@ -216,8 +216,8 @@ public class TravelingThiefProblem {
         return deltaTimes;
     }
 
-    public double itemEta(int i) {
-        double w = 1; // How much weight to assign to weight / deltaTimes
+    public double itemEta(int i, double w) {
+        w = 0.5; // How much weight to assign to weight / deltaTimes
         return (profit[i]/maxItemProfit) / (w * weight[i]/maxItemWeight + (1 - w) * deltaTimes[i]/maxItemDeltaTimes);
     }
 

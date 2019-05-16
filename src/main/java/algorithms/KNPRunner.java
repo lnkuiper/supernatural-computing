@@ -27,7 +27,8 @@ public class KNPRunner {
             Callable<KNPAnt> AC = new KNPAntColony(problem,
                     threadNum, 100000, numAnts,
                     15, 30, qZero,
-                    rho, phi, false);
+                    rho, phi, false,
+                    0);
             Future<KNPAnt> future = pool.submit(AC);
             futures.add(future);
         }
