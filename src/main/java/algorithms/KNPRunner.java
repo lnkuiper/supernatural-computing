@@ -2,6 +2,7 @@ package algorithms;
 
 import model.TravelingThiefProblem;
 import util.FixedSizePriorityQueue;
+import util.Vector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,46 +11,54 @@ import java.util.concurrent.*;
 
 public class KNPRunner {
 
+    private double c;
+
+    public KNPRunner(double c) {
+        this.c = c;
+    }
+
     // TODO: cross-contaminate pheromones between colonies
-    public boolean[] computePackingPlan(TravelingThiefProblem problem)
+    public KNPAnt computePackingPlan(TravelingThiefProblem problem)
             throws ExecutionException, InterruptedException {
 
         // Create as many KNPAntColonies as there are processors, and add them all to a pool
-        int cores = 1; //Runtime.getRuntime().availableProcessors();
+        int cores = problem.bestTours.size();
         ExecutorService pool = Executors.newFixedThreadPool(cores);
         List<Future<KNPAnt>> futures = new ArrayList<>();
         for (int threadNum = 0; threadNum < cores; threadNum++) {
-            float antFrac = (float) 0.01;
-            int numAnts = 10;//(int) (antFrac * problem.numOfItems);
+            int numAnts = 25;
             float phi = (float) (1 / (2*numAnts));
             float qZero = (float) 0.1;
             float rho = (float) 0.15;
             Callable<KNPAnt> AC = new KNPAntColony(problem,
-                    threadNum, 10, numAnts,
+                    threadNum, 15, numAnts,
                     15, 30, qZero,
                     rho, phi, false,
-                    0.4,0.4, threadNum);
+                    c,c, threadNum);
             Future<KNPAnt> future = pool.submit(AC);
             futures.add(future);
         }
 
         // Identify best ant
-        double bestProfit = 0;
+        double bestDistance = Double.POSITIVE_INFINITY;
         KNPAnt bestAnt = new KNPAnt(problem.numOfItems);
         for (Future<KNPAnt> f : futures) {
             while (!f.isDone()) {
-                Thread.sleep(10000);
+                Thread.sleep(50);
             }
             KNPAnt ant = f.get();
-            if (ant.profit > bestProfit) {
+            if (ant.distanceToIdealPoint < bestDistance) {
+                bestDistance = ant.distanceToIdealPoint;
                 bestAnt = ant;
+//                bestAnt.z = ant.z;
+//                bestAnt.pi = ant.pi;
+//                bestAnt.profit = ant.profit;
+//                bestAnt.weight = ant.weight;
+//                bestAnt.tourTime = ant.tourTime;
+//                bestAnt.distanceToIdealPoint = ant.distanceToIdealPoint;
             }
         }
 
-        System.out.println();
-        System.out.println(bestAnt.profit);
-        System.out.println(Arrays.toString(bestAnt.z));
-
-        return bestAnt.z;
+        return bestAnt;
     }
 }

@@ -1,10 +1,12 @@
 import algorithms.*;
 import model.Solution;
 import model.TravelingThiefProblem;
+import util.Linspace;
 
 import java.io.*;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -15,7 +17,35 @@ class Runner {
 
     public static void main(String[] args) throws ClassNotFoundException, ExecutionException, InterruptedException, IOException {
 
-        List<String> instanceToRun = Arrays.asList("a280-n1395");
+        HashMap<String, Double> durationMap = new HashMap<>();
+        HashMap<String, Double> profitMap = new HashMap<>();
+        HashMap<String, Double> nadirMap = new HashMap<>();
+
+        durationMap.put("a280", 0.995*2613);
+        durationMap.put("fnl4461", 0.995*185359);
+        durationMap.put("pla33810", 0.995*66048945);
+
+        profitMap.put("a280-n279", 42036.);
+        profitMap.put("a280-n1395", 489194.);
+        profitMap.put("a280-n2790", 1375443.);
+        profitMap.put("fnl4461-n4460", 645150.);
+        profitMap.put("fnl4461-n22300", 7827881.);
+        profitMap.put("fnl4461-n44600", 22136989.);
+        profitMap.put("pla33810-n33809", 4860715.);
+        profitMap.put("pla33810-n169045", 59472432.);
+        profitMap.put("pla33810-n338090", 168033267.);
+
+        nadirMap.put("a280-n1395", 6769.05189);
+        nadirMap.put("a280-n279", 7855.99276);
+        nadirMap.put("a280-n2790", 6645.5851);
+        nadirMap.put("fnl4461-n22300", 458389.45526);
+        nadirMap.put("fnl4461-n4460", 461247.53136);
+        nadirMap.put("fnl4461-n44600", 459900.52051);
+        nadirMap.put("pla33810-n169045", 169415148.);
+        nadirMap.put("pla33810-n33809", 168432301.);
+        nadirMap.put("pla33810-n338090", 169605428.);
+
+        List<String> instanceToRun = Arrays.asList("a280-n279");
 //        List<String> instanceToRun = Arrays.asList("fnl4461-n4460");
 //        List<String> instanceToRun = Arrays.asList("pla33810-n33809");
         //List<String> instanceToRun = Competition.INSTANCES;
@@ -30,12 +60,18 @@ class Runner {
             problem.name = instance;
             problem.initialize();
 
+            problem.idealDuration = durationMap.get(instance.split("-")[0]);
+            problem.idealProfit = profitMap.get(instance);
+            problem.nadirPoint = nadirMap.get(instance);
+
             // number of solutions that will be finally necessary for submission - not used here
             int numOfSolutions = Competition.numberOfSolutions(problem);
 
-            // TODO: remove this test code eventually
-            KNPRunner allColonies = new KNPRunner();
-            boolean[] packingPlan = allColonies.computePackingPlan(problem);
+            Algorithm algorithm = new IndependentSubproblemAlgorithm(numOfSolutions);
+            List<Solution> nds = algorithm.solve(problem);
+
+//            KNPRunner allColonies = new KNPRunner(0);
+//            KNPAnt bestAnt = allColonies.computePackingPlan(problem);
 
 //            TSPRunner allColonies = new TSPRunner();
 //            List<List<Integer>> tours = allColonies.computeTours(problem);
@@ -44,14 +80,7 @@ class Runner {
 //            oos.writeObject(tours);
 //            oos.close();
 //            fos.close();
-            System.exit(0);
-
-            // initialize your algorithm
-            Algorithm algorithm = new RandomLocalSearch(100);
-            //Algorithm algorithm = new ExhaustiveSearch();
-
-            // use it to to computeTours the problem and return the non-dominated set
-            List<Solution> nds = algorithm.solve(problem);
+//            System.exit(0);
 
             // sort by travelDistance and printSolutions it
             nds.sort(Comparator.comparing(a -> a.time));
@@ -67,12 +96,7 @@ class Runner {
             File dir = new File("results");
             if (!dir.exists()) dir.mkdirs();
             Util.writeSolutions("results", Competition.TEAM_NAME, problem, nds);
-
-
         }
-
-
-
     }
 
 }

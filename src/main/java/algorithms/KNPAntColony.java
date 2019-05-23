@@ -127,16 +127,16 @@ public class KNPAntColony implements Callable<KNPAnt> {
             greedyNumItems++;
             i++;
         }
-        System.out.println(String.format("greedyProfit computed: %f profit, %d items", greedyProfit, greedyNumItems));
+//        System.out.println(String.format("greedyProfit computed: %f profit, %d items", greedyProfit, greedyNumItems));
     }
 
     @Override
     public KNPAnt call() {
         KNPAnt bestAnt = new KNPAnt(problem.numOfItems);
-        double bestProfit = 0;
+        double bestDistance = 0;
 
         for (int i = 0; i < iterations; i++) {
-            double iterationBestProfit = 0;
+            double iterationBestDistance = 0;
             KNPAnt iterationBestAnt = new KNPAnt(problem.numOfItems);
 
             //New ants for each iteration
@@ -167,18 +167,20 @@ public class KNPAntColony implements Callable<KNPAnt> {
 
             // Identify best of iteration
             for (KNPAnt ant : ants) {
-                if (ant.profit > iterationBestProfit) {
-                    iterationBestProfit = ant.profit;
+                ant.tourTime = getTourTime(ant.z);
+                ant.distanceToIdealPoint = problem.distanceToIdealPoint(ant);
+                if (ant.distanceToIdealPoint > iterationBestDistance) {
+                    iterationBestDistance = ant.distanceToIdealPoint;
                     iterationBestAnt = ant;
                 }
             }
 
             iterationBestAnt = localSearch(iterationBestAnt);
-            iterationBestProfit = iterationBestAnt.profit;
+            iterationBestDistance = iterationBestAnt.profit;
 
             // Identify best so far
-            if (iterationBestProfit > bestProfit) {
-                bestProfit = iterationBestProfit;
+            if (iterationBestDistance > bestDistance) {
+                bestDistance = iterationBestDistance;
                 bestAnt = iterationBestAnt;
             }
 
@@ -191,8 +193,9 @@ public class KNPAntColony implements Callable<KNPAnt> {
                 globalPheromoneUpdate(bestAnt);
             }
 
-            System.out.println(String.format("T%d, I%d: \tprofit = %f, weight = %f, time = %f", threadNum, i, bestProfit, bestAnt.weight, getTourTime(bestAnt.z)));
+//            System.out.println(String.format("T%d, I%d: \tprofit = %f, weight = %f, time = %f", threadNum, i, bestDistance, bestAnt.weight, getTourTime(bestAnt.z)));
         }
+        bestAnt.pi = this.tour;
         return bestAnt;
     }
 

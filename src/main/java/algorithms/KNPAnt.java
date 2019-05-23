@@ -1,10 +1,15 @@
 package algorithms;
 
+import java.util.List;
+
 public class KNPAnt implements Comparable<KNPAnt>{
 
     public boolean[] z;
+    public List<Integer> pi;
     public double profit;
     public double weight;
+    public double tourTime;
+    public double distanceToIdealPoint;
 
     public KNPAnt(int numOfItems) {
         this.z = new boolean[numOfItems];
@@ -25,7 +30,7 @@ public class KNPAnt implements Comparable<KNPAnt>{
 
     @Override
     public int compareTo(KNPAnt otherAnt) {
-        return -Double.compare(this.profit, otherAnt.profit);
+        return Double.compare(this.distanceToIdealPoint, otherAnt.distanceToIdealPoint);
     }
 
     @Override

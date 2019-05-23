@@ -4,6 +4,7 @@ import model.Solution;
 import model.TravelingThiefProblem;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public interface Algorithm {
 
@@ -12,6 +13,6 @@ public interface Algorithm {
      * @param problem traveling thief problem instance
      * @return A non-dominated set of solutions
      */
-    List<Solution> solve(TravelingThiefProblem problem);
+    List<Solution> solve(TravelingThiefProblem problem) throws ExecutionException, InterruptedException;
 
 }

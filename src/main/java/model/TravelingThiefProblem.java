@@ -1,12 +1,10 @@
 package model;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import algorithms.KNPAnt;
 
-import static jdk.nashorn.internal.runtime.regexp.joni.Syntax.Java;
+import java.io.*;
+import java.util.*;
+import util.Vector;
 
 /**
  * This class represents the main problem to be solved. It stores all variables which are necessary
@@ -62,6 +60,11 @@ public class TravelingThiefProblem {
     // ! best tours from TSP used for TTP
     public List<List<Integer>> bestTours;
 
+    // ! estimated ideal point
+    public double idealDuration;
+    public double idealProfit;
+    public double nadirPoint;
+
     // TODO: We want to limit time spent to create the curve, instead of knapsack capacity
     // TODO: Initialize minTime (tour without picking up items), and maxTime (picking up maximum profit along the tour)
     // TODO: We limit time to "minTime + (maxTime - minTime) * w" (w between 0-1), and adjust w in itemEta accordingly
@@ -105,7 +108,7 @@ public class TravelingThiefProblem {
             greedyTour.add(currentCity);
         }
         greedyDistance += euclideanDistance(currentCity, 0);
-        System.out.println(String.format("greedyDistance computed: %f", greedyDistance));
+//        System.out.println(String.format("greedyDistance computed: %f", greedyDistance));
 
 
         File toursFile = new File("savedTours/" + name.split("-")[0] + ".obj");
@@ -113,6 +116,15 @@ public class TravelingThiefProblem {
             FileInputStream fis = new FileInputStream("savedTours/" + name.split("-")[0] + ".obj");
             ObjectInputStream ois = new ObjectInputStream(fis);
             bestTours = (ArrayList<List<Integer>>) ois.readObject();
+        }
+        List<List<Integer>> reverseTours = new ArrayList<>();
+        for (int i = 0; i < bestTours.size(); i++) {
+            reverseTours.add(bestTours.get(i));
+        }
+        for (List<Integer> tour : reverseTours) {
+            List<Integer> partToReverse = tour.subList(1, numOfCities - 1);
+            Collections.reverse(partToReverse);
+            bestTours.add(tour);
         }
 
         // Compute max item profit for normalization
@@ -268,5 +280,10 @@ public class TravelingThiefProblem {
 
     }
 
-
+    public double distanceToIdealPoint(KNPAnt ant) {
+        double normalizedTime = (ant.tourTime - idealDuration) / (nadirPoint - idealDuration);
+        double normalizedProfit = ant.profit / idealProfit;
+        Vector vector = new Vector();
+        return vector.pointDistance(0, 1, normalizedTime, normalizedProfit);
+    }
 }

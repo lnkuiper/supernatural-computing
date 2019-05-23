@@ -43,5 +43,46 @@ public class NonDominatedSet {
 
     }
 
+    private void normaliseSolutions(List<Solution> entries){
+        double maxProfit = Double.NEGATIVE_INFINITY;
+        double minTime = Double.POSITIVE_INFINITY;
+        double maxTime = Double.NEGATIVE_INFINITY;
+        for (Solution s: entries){
+            if(s.profit > maxProfit){
+                maxProfit = s.profit;
+            }
+            if(s.time > maxTime){
+                maxTime = s.time;
+            }
+            if(s.time < minTime){
+                minTime = s.time;
+            }
+        }
+
+        for (Solution s: entries){
+            s.profit /= maxProfit;
+            s.time = (s.time-minTime)/(maxTime-minTime);
+        }
+
+
+    }
+    public List<Solution> getBestSolutions(int numberOfSolutions){
+        int excessSolutions = entries.size()-numberOfSolutions;
+        for (int i = 0; i < excessSolutions; i++) {
+            double leastArea = Double.POSITIVE_INFINITY;
+            int leastIndex = -1;
+            for (int j = 1; j < entries.size() - 1; j++) {
+                double addedArea = Math.abs(entries.get(j-1).profit-entries.get(j).profit)*Math.abs(entries.get(j).time-entries.get(j+1).time);
+                if(addedArea < leastArea){
+                    leastArea  = addedArea;
+                    leastIndex = j;
+                }
+            }
+            entries.remove(leastIndex);
+
+        }
+        return entries;
+    }
+
 
 }
