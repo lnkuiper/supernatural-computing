@@ -22,7 +22,7 @@ public class IndependentSubproblemAlgorithm implements Algorithm {
 
         NonDominatedSet nds = new NonDominatedSet();
 
-        Linspace counter = new Linspace(0, 1, numberOfTrials * 3);
+        Linspace counter = new Linspace(0, 1, 5);
         while (counter.hasNext()) {
             double c = counter.next();
             System.out.println(c);

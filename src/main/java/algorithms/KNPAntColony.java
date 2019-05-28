@@ -2,6 +2,7 @@ package algorithms;
 
 import model.TravelingThiefProblem;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -67,7 +68,7 @@ public class KNPAntColony implements Callable<KNPAnt> {
         this.w = w;
 
         this.tour = problem.bestTours.get(tourIndex);
-        this.deltaTimes = problem.getDeltaTimes(tour);
+        this.deltaTimes = calculateDeltaTimes(tour,new boolean[problem.numOfItems]);
         for (double dt : deltaTimes) {
             if (dt > maxItemDeltaTimes) {
                 maxItemDeltaTimes = dt;
@@ -150,6 +151,13 @@ public class KNPAntColony implements Callable<KNPAnt> {
                 int k = 0;
                 for (KNPAnt ant : ants) {
                     if(!fullAnt[k]) {
+                        this.deltaTimes = calculateDeltaTimes(tour,ant.z);
+                        for (double dt : deltaTimes) {
+                            if (dt > maxItemDeltaTimes) {
+                                maxItemDeltaTimes = dt;
+                            }
+                        }
+
                         int nextItem = weightedChoice(ant);
                         if (nextItem == -1) {
                             fullAnt[k] = true;
@@ -282,6 +290,12 @@ public class KNPAntColony implements Callable<KNPAnt> {
                     if (bestItem != -1) {
                         ant.z[i] = false;
                         ant.z[bestItem] = true;
+                        this.deltaTimes = calculateDeltaTimes(tour,ant.z);
+                        for (double dt : deltaTimes) {
+                            if (dt > maxItemDeltaTimes) {
+                                maxItemDeltaTimes = dt;
+                            }
+                        }
                         double weightChange = problem.weight[i] - problem.weight[bestItem];
                         double profitChange = problem.profit[i] - problem.profit[bestItem];
                         ant.weight -= weightChange;
@@ -293,6 +307,49 @@ public class KNPAntColony implements Callable<KNPAnt> {
                 improved = true;
         }
         return ant;
+    }
+
+
+    public double[] calculateDeltaTimes(List<Integer> tour, boolean[] z){
+        double currentTourTime = getTourTime(z);
+        double[] weigthKnapsacks = new double[problem.numOfItems];
+        double[] deltaTimes = new double[problem.numOfItems];
+        for (int i = 0; i < tour.size(); i++) {
+            List<Integer> items = problem.getItemsAtCity(tour.get(i));
+
+            for (int item: items){
+                if(z[item] == true){
+                    for (int j = 0; j < problem.numOfItems; j++) {
+                        weigthKnapsacks[j] += problem.weight[item];
+                    }
+                }else{
+                    weigthKnapsacks[item] += problem.weight[item];
+                }
+            }
+
+            if (i != problem.numOfCities - 1) {
+                for (int j = 0; j < problem.numOfItems; j++) {
+                    deltaTimes[j] +=  problem.euclideanDistance(tour.get(i), tour.get(i+1))/problem.speedFromWeight(weigthKnapsacks[j]);
+                }
+            }
+            else{
+                for (int j = 0; j < problem.numOfItems; j++) {
+                    deltaTimes[j] += problem.euclideanDistance(tour.get(i), 0) / problem.speedFromWeight(weigthKnapsacks[j]);
+                }
+            }
+        }
+        for (int i = 0; i < problem.numOfItems; i++) {
+            if(z[i]){
+                z[i] = false;
+                deltaTimes[i] = currentTourTime - getTourTime(z) ;
+                z[i] = true;
+            }
+            else{
+                deltaTimes[i] = deltaTimes[i] - currentTourTime;
+            }
+        }
+        System.out.println(Arrays.toString(deltaTimes));
+        return deltaTimes;
     }
 
 

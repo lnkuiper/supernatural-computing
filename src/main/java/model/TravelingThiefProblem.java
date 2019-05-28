@@ -149,21 +149,6 @@ public class TravelingThiefProblem {
         return distance;
     }
 
-    public double[] getDeltaTimes(List<Integer> tour){
-        double[] deltaTimes = new double[numOfItems];
-        double distanceToTravel = getTourLength(tour);
-        for (int i = 0; i < numOfCities; i++) {
-            List<Integer> items = getItemsAtCity(tour.get(i));
-            for (int item: items){
-                deltaTimes[item] = distanceToTravel / speedFromWeight(weight[item]) - distanceToTravel;
-            }
-            if (i != numOfCities - 1) {
-                distanceToTravel -= euclideanDistance(i, i + 1);
-            }
-        }
-
-        return deltaTimes;
-    }
 
     public double speedFromWeight(double weight){
         return Math.max(minSpeed, maxSpeed - (weight/maxWeight)*(maxSpeed-minSpeed));
