@@ -97,6 +97,7 @@ class Runner {
             if (!dir.exists()) dir.mkdirs();
             Util.writeSolutions("results", Competition.TEAM_NAME, problem, nds);
         }
+        System.exit(0);
     }
 
 }
