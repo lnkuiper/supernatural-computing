@@ -21,9 +21,9 @@ class Runner {
         HashMap<String, Double> profitMap = new HashMap<>();
         HashMap<String, Double> nadirMap = new HashMap<>();
 
-        durationMap.put("a280", 0.995*2613);
-        durationMap.put("fnl4461", 0.995*185359);
-        durationMap.put("pla33810", 0.995*66048945);
+        durationMap.put("a280", 2613.);
+        durationMap.put("fnl4461", 185359.);
+        durationMap.put("pla33810", 66048945.);
 
         profitMap.put("a280-n279", 42036.);
         profitMap.put("a280-n1395", 489194.);
@@ -45,7 +45,8 @@ class Runner {
         nadirMap.put("pla33810-n33809", 168432301.);
         nadirMap.put("pla33810-n338090", 169605428.);
 
-        List<String> instanceToRun = Arrays.asList("a280-n279");
+//        List<String> instanceToRun = Arrays.asList("a280-n279");
+        List<String> instanceToRun = Arrays.asList("a280-n1395");
 //        List<String> instanceToRun = Arrays.asList("fnl4461-n4460");
 //        List<String> instanceToRun = Arrays.asList("pla33810-n33809");
         //List<String> instanceToRun = Competition.INSTANCES;
@@ -60,9 +61,9 @@ class Runner {
             problem.name = instance;
             problem.initialize();
 
-            problem.idealDuration = durationMap.get(instance.split("-")[0]);
+            problem.idealDuration = durationMap.get(instance.split("-")[0]) * 1.;
             problem.idealProfit = profitMap.get(instance);
-            problem.nadirPoint = nadirMap.get(instance);
+            problem.nadirPoint = nadirMap.get(instance) * 1.05;
 
             // number of solutions that will be finally necessary for submission - not used here
             int numOfSolutions = Competition.numberOfSolutions(problem);

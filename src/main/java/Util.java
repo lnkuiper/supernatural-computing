@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 
@@ -24,10 +25,10 @@ public abstract class Util {
         }
 
         BufferedWriter varBw = Files.newBufferedWriter(Paths.get(outputFolder,
-                String.format("%s_%s.x", teamName, problem.name)));
+                String.format("%s_%s.x", teamName, problem.name).replace("-", "_")));
 
         BufferedWriter objBw = Files.newBufferedWriter(Paths.get(outputFolder,
-                String.format("%s_%s.f", teamName, problem.name)));
+                String.format("%s_%s.f", teamName, problem.name).replace("-", "_")));
 
 
         for (Solution solution : solutions) {
@@ -46,15 +47,12 @@ public abstract class Util {
             varBw.write("\n");
 
             // write into the objective file
-            objBw.write(String.format("%.16f %.16f", solution.time, solution.profit) + "\n");
+            objBw.write(String.format(Locale.US, "%.16f %.16f", solution.time, solution.profit) + "\n");
 
         }
 
         varBw.close();
         objBw.close();
-
-
-
     }
 
 

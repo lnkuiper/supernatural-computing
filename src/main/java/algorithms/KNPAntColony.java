@@ -82,16 +82,16 @@ public class KNPAntColony implements Callable<KNPAnt> {
 
         pheromones = new double[problem.numOfItems];
         Arrays.fill(pheromones, tauZero());
-        KNPAnt ant = new KNPAnt(problem.numOfItems, basicTourTime);
-        ant.z = greedyPackingPlan;
-        ant.weight = greedyWeight;
-        ant.profit = greedyProfit;
-        ant = localSearch(ant);
-        for (int i = 0; i < problem.numOfItems; i++) {
-            if (ant.z[i]) {
-                pheromones[i] *= 3;
-            }
-        }
+//        KNPAnt ant = new KNPAnt(problem.numOfItems, basicTourTime);
+//        ant.z = greedyPackingPlan;
+//        ant.weight = greedyWeight;
+//        ant.profit = greedyProfit;
+//        ant = localSearch(ant);
+//        for (int i = 0; i < problem.numOfItems; i++) {
+//            if (ant.z[i]) {
+//                pheromones[i] *= 3;
+//            }
+//        }
     }
 
     private void initialize() {
@@ -230,7 +230,8 @@ public class KNPAntColony implements Callable<KNPAnt> {
             double bestProb = 0;
             int bestItem = -1;
             for (int i = 0; i < problem.numOfItems; i++) {
-                if (!ant.z[i] && ant.tourTime + deltaTimes[i] < c * problem.nadirPoint){
+                boolean legalWeight = ant.weight + problem.weight[i] <= problem.maxWeight;
+                if (!ant.z[i] && ant.tourTime + deltaTimes[i] < c * problem.nadirPoint && legalWeight){
                     double eta = itemEta(i);
                     double prob = pheromones[i] * Math.pow(eta, beta);
                     if (prob > bestProb) {
@@ -245,7 +246,8 @@ public class KNPAntColony implements Callable<KNPAnt> {
         // Standard proportional selection rule
         double[] probabilities = new double[problem.numOfItems];
         for (int i = 0; i < problem.numOfItems; i++) {
-            if (!ant.z[i] && ant.tourTime + deltaTimes[i] < c * problem.nadirPoint) {
+            boolean legalWeight = ant.weight + problem.weight[i] <= problem.maxWeight;
+            if (!ant.z[i] && ant.tourTime + deltaTimes[i] < c * problem.nadirPoint && legalWeight) {
                 double eta = itemEta(i);
                 probabilities[i] = Math.pow(pheromones[i], alpha) * Math.pow(eta, beta);
             }
@@ -284,7 +286,8 @@ public class KNPAntColony implements Callable<KNPAnt> {
                     double bestProfit = 0;
                     for (int j = 0; j < problem.numOfItems; j++) {
                         if (!ant.z[j]) {
-                            if (ant.tourTime + deltaTimes[j] - deltaTimes[i] < c * problem.nadirPoint && problem.profit[i] <= problem.profit[j]){
+                            boolean legalWeight = ant.weight + problem.weight[j] - problem.weight[i] < problem.maxWeight;
+                            if (ant.tourTime + deltaTimes[j] - deltaTimes[i] < c * problem.nadirPoint && problem.profit[i] <= problem.profit[j] && legalWeight){
                                 if (problem.profit[j] > bestProfit) {
                                     bestItem = j;
                                     bestProfit = problem.profit[j];
@@ -296,7 +299,14 @@ public class KNPAntColony implements Callable<KNPAnt> {
                     if (bestItem != -1) {
                         ant.z[i] = false;
                         ant.z[bestItem] = true;
-                        ant.tourTime = ant.tourTime - deltaTimes[i] + deltaTimes[bestItem];
+
+                        // This:
+                        ant.tourTime = getTourTime(ant.z);
+                        // Used to be:
+                        // ant.tourTime = ant.tourTime - deltaTimes[i] + deltaTimes[bestItem];
+                        // This is incorrect since removing an item changes everything
+                        // recomputing costs a lot, though...
+
                         double weightChange = problem.weight[i] - problem.weight[bestItem];
                         double profitChange = problem.profit[i] - problem.profit[bestItem];
                         ant.weight -= weightChange;

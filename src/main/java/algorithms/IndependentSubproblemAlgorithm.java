@@ -4,6 +4,7 @@ import model.NonDominatedSet;
 import model.Solution;
 import model.TravelingThiefProblem;
 import util.Linspace;
+import util.Logspace;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,10 +23,17 @@ public class IndependentSubproblemAlgorithm implements Algorithm {
 
         NonDominatedSet nds = new NonDominatedSet();
 
-        Linspace counter = new Linspace(0, 1, 100);
+        double start = problem.idealDuration / problem.nadirPoint;
+        int steps = (int) (1.5 * numberOfTrials);
+//        Linspace counter = new Linspace(start, 1, steps);
+        Logspace counter = new Logspace(start, 1, steps, 1000);
+//        while (counter.hasNext()) {
+//            System.out.println(counter.next());
+//        }
+//        System.exit(0);
+        int i = 0;
         while (counter.hasNext()) {
             double c = counter.next();
-            System.out.println(c);
             KNPRunner runner = new KNPRunner(c);
             KNPAnt bestAnt = runner.computePackingPlan(problem);
             List<Boolean> z = new ArrayList<>(problem.numOfItems);
@@ -34,7 +42,12 @@ public class IndependentSubproblemAlgorithm implements Algorithm {
             }
             Solution s = problem.evaluate(bestAnt.pi, z, true);
             nds.add(s);
+            System.out.println(i + ":" + nds.entries.size() + " " + c + ", TIME: " + bestAnt.tourTime + ", MAXTIME: " + c * problem.nadirPoint + ", PROFIT: " + bestAnt.profit);
+            i++;
         }
-        return nds.getBestSolutions(numberOfTrials);
+        System.out.println("Before: " + nds.entries.size());
+        List<Solution> bestSolutions = nds.getBestSolutions(numberOfTrials);
+        System.out.println("After: " + bestSolutions.size());
+        return bestSolutions;
     }
 }

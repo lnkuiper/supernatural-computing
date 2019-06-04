@@ -262,7 +262,6 @@ public class TravelingThiefProblem {
         if (s.time != correct.time || s.profit != correct.profit) {
             throw new RuntimeException("Pi and Z are not matching with the objectives values travelDistance and profit.");
         }
-
     }
 
     public double distanceToIdealPoint(KNPAnt ant) {
