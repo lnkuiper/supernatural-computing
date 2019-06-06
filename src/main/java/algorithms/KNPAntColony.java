@@ -1,11 +1,10 @@
 package algorithms;
 
 import model.TravelingThiefProblem;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 public class KNPAntColony implements Callable<KNPAnt> {
@@ -273,9 +272,34 @@ public class KNPAntColony implements Callable<KNPAnt> {
         return randomIndex;
     }
 
+    private int getIntFromPairList(List<Pair<Integer,Double>> toSearch, int findMe)
+    {
+        for(int i = 0 ; i < toSearch.size() ; i++)
+        {
+            if(toSearch.get(i).getLeft() == findMe)
+            {
+                return i;
+            }
+        }
+        return -1;
+
+    }
+
     private KNPAnt localSearch(KNPAnt ant) {
         // Bit flip
         boolean improved = true;
+        setDeltaTimes(ant);
+        List<Pair<Integer, Double>> etaSortList = new ArrayList<>();
+        for (int i = 0 ; i < problem.numOfItems ; i++)
+        {
+            double ItemEta = this.itemEta(i);
+            etaSortList.add(Pair.of(i,ItemEta));
+        }
+        Collections.sort(etaSortList, Comparator.comparing(p -> -p.getRight()));
+
+        //System.out.println(etaSortList);
+        //System.exit(37);
+        int maxInt = (int) Math.log(problem.numOfItems);
         while (improved) {
             double oldProfit = ant.profit;
             improved = false;
@@ -284,13 +308,15 @@ public class KNPAntColony implements Callable<KNPAnt> {
                     // Identify best swap (if legal)
                     int bestItem = -1;
                     double bestProfit = 0;
-                    for (int j = 0; j < problem.numOfItems; j++) {
-                        if (!ant.z[j]) {
-                            boolean legalWeight = ant.weight + problem.weight[j] - problem.weight[i] < problem.maxWeight;
-                            if (ant.tourTime + deltaTimes[j] - deltaTimes[i] < c * problem.nadirPoint && problem.profit[i] <= problem.profit[j] && legalWeight){
-                                if (problem.profit[j] > bestProfit) {
-                                    bestItem = j;
-                                    bestProfit = problem.profit[j];
+                    for (int j = 0; j < getIntFromPairList(etaSortList,i); j++)
+                    {
+                        int currentItem = etaSortList.get(j).getLeft();
+                        if (!ant.z[currentItem]) {
+                            boolean legalWeight = ant.weight + problem.weight[currentItem] - problem.weight[i] < problem.maxWeight;
+                            if (ant.tourTime + deltaTimes[currentItem] - deltaTimes[i] < c * problem.nadirPoint && problem.profit[i] <= problem.profit[currentItem] && legalWeight){
+                                if (problem.profit[currentItem] > bestProfit) {
+                                    bestItem = currentItem;
+                                    bestProfit = problem.profit[currentItem];
                                 }
                             }
                         }
@@ -383,6 +409,8 @@ public class KNPAntColony implements Callable<KNPAnt> {
     }
 
 
+
+
     private void localPheromoneUpdate(int nextItem) {
         pheromones[nextItem] = (1 - phi) * pheromones[nextItem] + phi * tauZero();
     }
@@ -419,4 +447,18 @@ public class KNPAntColony implements Callable<KNPAnt> {
     public double itemEta(int i) {
         return (problem.profit[i]/problem.maxItemProfit) / (w * problem.weight[i]/problem.maxItemWeight + (1 - w) * deltaTimes[i]/maxItemDeltaTimes);
     }
+
+
+    void setDeltaTimes(KNPAnt ant)
+    {
+        this.deltaTimes = calculateDeltaTimes(tour,ant.z);
+        this.maxItemDeltaTimes = 0;
+        for (double dt : this.deltaTimes)
+        {
+            if (dt > this.maxItemDeltaTimes) {
+                this.maxItemDeltaTimes = dt;
+            }
+        }
+    }
 }
+
