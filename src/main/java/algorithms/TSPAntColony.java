@@ -50,16 +50,16 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
         this.bestAtIteration = bestAtIteration;
 
         pheromones = new SymmetricArray(problem.numOfCities, tauZero());
-        TSPAnt ant = new TSPAnt(problem.numOfCities);
-        ant.pi = problem.greedyTour;
-        ant.travelDistance = problem.greedyDistance;
-        ant = localSearch(ant);
-        for (int i = 0; i < problem.numOfCities - 1; i++) {
-            int from = ant.pi.get(i);
-            int to = ant.pi.get(i + 1);
-            pheromones.set(from, to, tauZero() * 2);
-        }
-        pheromones.set(ant.pi.get(problem.numOfCities - 1), 0, tauZero() * 2);
+//        TSPAnt ant = new TSPAnt(problem.numOfCities);
+//        ant.pi = problem.greedyTour;
+//        ant.travelDistance = problem.greedyDistance;
+//        ant = localSearch(ant);
+//        for (int i = 0; i < problem.numOfCities - 1; i++) {
+//            int from = ant.pi.get(i);
+//            int to = ant.pi.get(i + 1);
+//            pheromones.set(from, to, tauZero() * 2);
+//        }
+//        pheromones.set(ant.pi.get(problem.numOfCities - 1), 0, tauZero() * 2);
     }
 
     @Override
@@ -107,6 +107,9 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
 
             // Find local optimum
             iterationBestAnt = localSearch(iterationBestAnt);
+
+            // TODO: Partitioned Search here
+
             iterationBestFitness = iterationBestAnt.travelDistance;
 
             // Identify best so far

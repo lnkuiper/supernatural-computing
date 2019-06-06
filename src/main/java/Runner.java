@@ -12,7 +12,6 @@ import java.util.concurrent.ExecutionException;
 
 class Runner {
 
-
     static final ClassLoader LOADER = Runner.class.getClassLoader();
 
     public static void main(String[] args) throws ClassNotFoundException, ExecutionException, InterruptedException, IOException {
@@ -45,8 +44,8 @@ class Runner {
         nadirMap.put("pla33810-n33809", 168432301.);
         nadirMap.put("pla33810-n338090", 169605428.);
 
-//        List<String> instanceToRun = Arrays.asList("a280-n279");
-        List<String> instanceToRun = Arrays.asList("a280-n1395");
+        List<String> instanceToRun = Arrays.asList("a280-n279");
+//        List<String> instanceToRun = Arrays.asList("a280-n1395");
 //        List<String> instanceToRun = Arrays.asList("fnl4461-n4460");
 //        List<String> instanceToRun = Arrays.asList("pla33810-n33809");
         //List<String> instanceToRun = Competition.INSTANCES;
@@ -68,20 +67,19 @@ class Runner {
             // number of solutions that will be finally necessary for submission - not used here
             int numOfSolutions = Competition.numberOfSolutions(problem);
 
-            Algorithm algorithm = new IndependentSubproblemAlgorithm(numOfSolutions);
-            List<Solution> nds = algorithm.solve(problem);
-
-//            KNPRunner allColonies = new KNPRunner(0);
-//            KNPAnt bestAnt = allColonies.computePackingPlan(problem);
-
-//            TSPRunner allColonies = new TSPRunner();
-//            List<List<Integer>> tours = allColonies.computeTours(problem);
+            // TSP testing
+            TSPRunner allColonies = new TSPRunner();
+            List<List<Integer>> tours = allColonies.computeTours(problem);
 //            FileOutputStream fos = new FileOutputStream("savedTours/" + problem.name.split("-")[0] + ".obj");
 //            ObjectOutputStream oos = new ObjectOutputStream(fos);
 //            oos.writeObject(tours);
 //            oos.close();
 //            fos.close();
-//            System.exit(0);
+            System.exit(0);
+
+            // Actual submission stuff
+            Algorithm algorithm = new IndependentSubproblemAlgorithm(numOfSolutions);
+            List<Solution> nds = algorithm.solve(problem);
 
             // sort by travelDistance and printSolutions it
             nds.sort(Comparator.comparing(a -> a.time));
