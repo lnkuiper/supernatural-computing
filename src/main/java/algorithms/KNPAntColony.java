@@ -311,7 +311,7 @@ public class KNPAntColony implements Callable<KNPAnt> {
                         double profitChange = problem.profit[i] - problem.profit[bestItem];
                         ant.weight -= weightChange;
                         ant.profit -= profitChange;
-                        this.deltaTimes = calculateDeltaTimes(tour,ant.z);
+                        this.deltaTimes = calculateDeltaTimes(tour, ant.z);
                         this.maxItemDeltaTimes = 0;
                         for (double dt : this.deltaTimes) {
                             if (dt > this.maxItemDeltaTimes) {
