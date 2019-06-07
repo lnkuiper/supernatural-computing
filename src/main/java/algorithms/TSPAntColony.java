@@ -110,7 +110,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
             iterationBestAnt = localSearch(iterationBestAnt);
 
             // TODO: Partitioned Search here
-            iterationBestAnt = callPartitions(iterationBestAnt);
+            //iterationBestAnt = callPartitions(iterationBestAnt);
 
             iterationBestFitness = iterationBestAnt.travelDistance;
 
