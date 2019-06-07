@@ -24,9 +24,11 @@ public class IndependentSubproblemAlgorithm implements Algorithm {
         NonDominatedSet nds = new NonDominatedSet();
 
         double start = problem.idealDuration / problem.nadirPoint;
-        int steps = (int) (1.5 * numberOfTrials);
+        start = 0.4248;
+        double end = 0.7;
+        int steps = (int) (2 * numberOfTrials);
 //        Linspace counter = new Linspace(start, 1, steps);
-        Logspace counter = new Logspace(start, 1, steps, 1000);
+        Logspace counter = new Logspace(start, end, steps, 1000);
 //        while (counter.hasNext()) {
 //            System.out.println(counter.next());
 //        }
@@ -42,7 +44,7 @@ public class IndependentSubproblemAlgorithm implements Algorithm {
             }
             Solution s = problem.evaluate(bestAnt.pi, z, true);
             nds.add(s);
-            System.out.println(i + ":" + nds.entries.size() + " " + c + ", TIME: " + bestAnt.tourTime + ", MAXTIME: " + c * problem.nadirPoint + ", PROFIT: " + bestAnt.profit);
+            System.out.println(i + ":" + nds.entries.size() + " " + c + ", TIME: " + bestAnt.tourTime + ", MAXTIME: " + (c * (problem.nadirPoint - problem.idealDuration) + problem.idealDuration) + ", PROFIT: " + bestAnt.profit + ", WEIGHT: " + bestAnt.weight);
             i++;
         }
         System.out.println("Before: " + nds.entries.size());

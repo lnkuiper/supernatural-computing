@@ -10,6 +10,8 @@ public class KNPAnt implements Comparable<KNPAnt>{
     public double weight;
     public double tourTime;
     public double distanceToIdealPoint;
+    public double[] deltaTimes;
+    public double maxItemDeltaTimes;
 
     public KNPAnt(int numOfItems, double basicTourTime) {
         this.z = new boolean[numOfItems];
@@ -18,12 +20,12 @@ public class KNPAnt implements Comparable<KNPAnt>{
         this.tourTime = basicTourTime;
     }
 
-    public void step(int nextItem, double profit, double weight, double deltaTime) {
+    public void step(int nextItem, double profit, double weight, double deltaTimes) {
         // Move to next city and update values
         z[nextItem] = true;
         this.profit += profit;
         this.weight += weight;
-        this.tourTime += deltaTime;
+        this.tourTime += deltaTimes;
     }
 
     public boolean[] getKnapsack() {
@@ -45,4 +47,6 @@ public class KNPAnt implements Comparable<KNPAnt>{
             return this.compareTo(otherAnt) == 0;
         }
     }
+
+
 }
