@@ -12,7 +12,7 @@ import java.util.concurrent.*;
 public class TSPAntColony implements Callable<List<TSPAnt>> {
 
     private TravelingThiefProblem problem;
-    private ExecutorService pool = Executors.newFixedThreadPool(16);
+    private ExecutorService pool;
 
     // Model parameters
     private int threadNum;
@@ -35,7 +35,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
     public TSPAntColony(TravelingThiefProblem problem,
                         int threadNum, int iterations, int numAnts,
                         float alpha, float beta, float qZero,
-                        float rho, float phi, boolean bestAtIteration) {
+                        float rho, float phi, boolean bestAtIteration, ExecutorService pool) {
         this.problem = problem;
 
         this.threadNum = threadNum;
@@ -61,6 +61,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
             pheromones.set(from, to, tauZero() * 2);
         }
         pheromones.set(ant.pi.get(problem.numOfCities - 1), 0, tauZero() * 2);
+        this.pool = pool;
     }
 
     @Override
@@ -317,7 +318,6 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
         appendedPartitions.remove(appendedPartitions.size() - 1);
         float travelDistance = tourLength(appendedPartitions);
 
-//        System.out.println("Before: " + ant.pi.toString() + "\n" + "After: " + appendedPartitions.toString());
         ant.pi = appendedPartitions;
         ant.travelDistance = travelDistance;
 

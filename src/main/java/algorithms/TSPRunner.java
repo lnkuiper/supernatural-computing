@@ -15,7 +15,7 @@ public class TSPRunner {
 
         // Create as many TSPAntColonies as there are processors, and add them all to a pool
         int cores = 4; //Runtime.getRuntime().availableProcessors();
-        ExecutorService pool = Executors.newFixedThreadPool(cores);
+        ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         List<Future<List<TSPAnt>>> futures = new ArrayList<>();
         for (int threadNum = 0; threadNum < cores; threadNum++) {
             float antFrac = 50; //(float) 0.7;
@@ -26,7 +26,7 @@ public class TSPRunner {
             Callable<List<TSPAnt>> AC = new TSPAntColony(problem,
                     threadNum, 500, numAnts,
                     15, 15, qZero,
-                    rho, phi, false);
+                    rho, phi, false, pool);
             Future<List<TSPAnt>> future = pool.submit(AC);
             futures.add(future);
         }
