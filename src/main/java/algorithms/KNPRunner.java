@@ -22,7 +22,7 @@ public class KNPRunner {
             throws ExecutionException, InterruptedException {
 
         // Create as many KNPAntColonies as there are threads
-        int cores = problem.bestTours.size();
+        int cores = 4;//problem.bestTours.size();
         ExecutorService pool = Executors.newFixedThreadPool(cores*2);
         List<Future<KNPAnt>> futures = new ArrayList<>();
         for (int threadNum = 0; threadNum < cores; threadNum++) {
@@ -31,7 +31,7 @@ public class KNPRunner {
             float qZero = (float) 0.1;
             float rho = (float) 0.5;
             Callable<KNPAnt> AC = new KNPAntColony(problem,
-                    threadNum, 20, numAnts,
+                    threadNum, 3, numAnts,
                     (float) 0.6, 20, qZero,
                     rho, phi, false,
                     1,c, threadNum);
