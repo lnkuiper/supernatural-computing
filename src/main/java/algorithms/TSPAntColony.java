@@ -109,8 +109,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
             // Find local optimum
             iterationBestAnt = localSearch(iterationBestAnt);
 
-            // TODO: Partitioned Search here
-            //iterationBestAnt = callPartitions(iterationBestAnt);
+            iterationBestAnt = callPartitions(iterationBestAnt);
 
             iterationBestFitness = iterationBestAnt.travelDistance;
 
@@ -309,7 +308,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
         for (int i = 0; i < nThreads; i++) {
             Future<List<Integer>> f = futures.get(i);
             while (!f.isDone()) {
-                Thread.sleep(500);
+                Thread.sleep(10);
             }
             List<Integer> partition = f.get();
             appendedPartitions.addAll(partition);

@@ -45,9 +45,9 @@ class Runner {
         nadirMap.put("pla33810-n33809", 168432301.);
         nadirMap.put("pla33810-n338090", 169605428.);
 
-        List<String> instanceToRun = Arrays.asList("a280-n279");
+//        List<String> instanceToRun = Arrays.asList("a280-n279");
 //        List<String> instanceToRun = Arrays.asList("a280-n1395");
-//        List<String> instanceToRun = Arrays.asList("fnl4461-n4460");
+        List<String> instanceToRun = Arrays.asList("fnl4461-n4460");
 //        List<String> instanceToRun = Arrays.asList("pla33810-n33809");
         //List<String> instanceToRun = Competition.INSTANCES;
 

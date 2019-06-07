@@ -17,13 +17,13 @@ public class PartitionedTSPColony implements Callable<List<Integer>> {
     private SymmetricArray pheromones;
     private float tauZero;
 
-    private int iterations = 100;
-    private int numAnts = 30;
+    private int iterations = 50;
+    private int numAnts = (int) 0.7 * problem.numOfCities;
 
-    private double alpha = 20;
-    private double beta = 30;
-    private float phi = (float) 0.03;
-    private float rho = (float) 0.3;
+    private double alpha = 15;
+    private double beta = 15;
+    private float phi = (float) 0.01;
+    private float rho = (float) 0.15;
     private double qZero = 0.1;
 
     public PartitionedTSPColony(TravelingThiefProblem problem, List<Integer> partition) {
@@ -93,7 +93,6 @@ public class PartitionedTSPColony implements Callable<List<Integer>> {
             double beforeTime = iterationBestAnt.travelDistance;
             iterationBestAnt = localSearch(iterationBestAnt);
             iterationBestFitness = iterationBestAnt.travelDistance;
-//            System.out.println("Before: " + beforeTime + ", After: " + iterationBestFitness);
 
             // Identify best so far
             if (iterationBestFitness < bestFitness) {
