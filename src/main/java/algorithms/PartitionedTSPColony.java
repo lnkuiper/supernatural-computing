@@ -18,7 +18,7 @@ public class PartitionedTSPColony implements Callable<List<Integer>> {
     private float tauZero;
 
     private int iterations = 50;
-    private int numAnts = (int) 0.7 * problem.numOfCities;
+    private int numAnts = (int) (0.7 * problem.numOfCities);
 
     private double alpha = 15;
     private double beta = 15;

@@ -109,6 +109,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
 
             // Find local optimum
             iterationBestAnt = localSearch(iterationBestAnt);
+            System.out.println("Iteration complete, starting partitioned search");
 
             iterationBestAnt = callPartitions(iterationBestAnt);
 

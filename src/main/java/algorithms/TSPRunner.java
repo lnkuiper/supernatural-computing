@@ -18,8 +18,8 @@ public class TSPRunner {
         ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         List<Future<List<TSPAnt>>> futures = new ArrayList<>();
         for (int threadNum = 0; threadNum < cores; threadNum++) {
-            float antFrac = 50; //(float) 0.7;
-            int numAnts = (int) (antFrac * problem.numOfCities);
+            float antFrac = (float) 0.7;
+            int numAnts = 50; //(int) (antFrac * problem.numOfCities);
             float phi = (float) 0.01; // (1 / (7*numAnts));
             float qZero = (float) 0.1;
             float rho = (float) 0.15;
