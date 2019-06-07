@@ -7,11 +7,12 @@ import util.SymmetricArray;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
+import java.util.concurrent.*;
 
 public class TSPAntColony implements Callable<List<TSPAnt>> {
 
     private TravelingThiefProblem problem;
+    private ExecutorService pool = Executors.newFixedThreadPool(16);
 
     // Model parameters
     private int threadNum;
@@ -50,20 +51,20 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
         this.bestAtIteration = bestAtIteration;
 
         pheromones = new SymmetricArray(problem.numOfCities, tauZero());
-//        TSPAnt ant = new TSPAnt(problem.numOfCities);
-//        ant.pi = problem.greedyTour;
-//        ant.travelDistance = problem.greedyDistance;
-//        ant = localSearch(ant);
-//        for (int i = 0; i < problem.numOfCities - 1; i++) {
-//            int from = ant.pi.get(i);
-//            int to = ant.pi.get(i + 1);
-//            pheromones.set(from, to, tauZero() * 2);
-//        }
-//        pheromones.set(ant.pi.get(problem.numOfCities - 1), 0, tauZero() * 2);
+        TSPAnt ant = new TSPAnt(problem.numOfCities);
+        ant.pi = problem.greedyTour;
+        ant.travelDistance = problem.greedyDistance;
+        ant = localSearch(ant);
+        for (int i = 0; i < problem.numOfCities - 1; i++) {
+            int from = ant.pi.get(i);
+            int to = ant.pi.get(i + 1);
+            pheromones.set(from, to, tauZero() * 2);
+        }
+        pheromones.set(ant.pi.get(problem.numOfCities - 1), 0, tauZero() * 2);
     }
 
     @Override
-    public List<TSPAnt> call() {
+    public List<TSPAnt> call() throws ExecutionException, InterruptedException {
         int heapSize = 10;
         FixedSizePriorityQueue<TSPAnt> minHeap = new FixedSizePriorityQueue<>(heapSize);
         double bestFitness = Double.POSITIVE_INFINITY;
@@ -109,6 +110,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
             iterationBestAnt = localSearch(iterationBestAnt);
 
             // TODO: Partitioned Search here
+            iterationBestAnt = callPartitions(iterationBestAnt);
 
             iterationBestFitness = iterationBestAnt.travelDistance;
 
@@ -130,7 +132,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
             if (!minHeap.contains(iterationBestAnt)) {
                 minHeap.add(iterationBestAnt);
             }
-            if (i % 10 == 0) {
+            if (i % 1 == 0) {
                 System.out.println(String.format("T%d, I%d: \toverall = %f, iter = %f", threadNum, i, bestFitness, iterationBestFitness));
             }
         }
@@ -275,5 +277,51 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
         // Ideas from sudoku paper to prevent stagnation:
         // Add best profit pheromone evaporation?
         // There is no global evaporation of pheromone in ACS, might want to add?
+    }
+
+    private TSPAnt callPartitions(TSPAnt ant) throws InterruptedException, ExecutionException {
+        int nThreads = 16;
+
+        // Split path into multiple lists
+        List<List<Integer>> splits = new ArrayList<>(nThreads);
+        for (int i = 0; i < nThreads; i++) {
+            List<Integer> split = new ArrayList<>(problem.numOfCities / nThreads);
+            int startIndex = i * problem.numOfCities / nThreads;
+            int endIndex = (i + 1) * problem.numOfCities / nThreads;
+            for (int j = startIndex; j < endIndex; j++) {
+                split.add(ant.pi.get(j));
+            }
+            // Final split must return to original city
+            if (i == nThreads - 1) {
+                split.add(ant.pi.get(0));
+            }
+            splits.add(split);
+        }
+
+        List<Future<List<Integer>>> futures = new ArrayList<>(nThreads);
+        for (int i = 0; i < nThreads; i++) {
+            Callable<List<Integer>> partitionedAC = new PartitionedTSPColony(problem, splits.get(i));
+            Future<List<Integer>> future = pool.submit(partitionedAC);
+            futures.add(future);
+        }
+
+        List<Integer> appendedPartitions = new ArrayList<>(problem.numOfCities);
+        for (int i = 0; i < nThreads; i++) {
+            Future<List<Integer>> f = futures.get(i);
+            while (!f.isDone()) {
+                Thread.sleep(500);
+            }
+            List<Integer> partition = f.get();
+            appendedPartitions.addAll(partition);
+        }
+
+        appendedPartitions.remove(appendedPartitions.size() - 1);
+        float travelDistance = tourLength(appendedPartitions);
+
+//        System.out.println("Before: " + ant.pi.toString() + "\n" + "After: " + appendedPartitions.toString());
+        ant.pi = appendedPartitions;
+        ant.travelDistance = travelDistance;
+
+        return ant;
     }
 }
