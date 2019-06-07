@@ -1,7 +1,6 @@
 package algorithms;
 
 import model.TravelingThiefProblem;
-import util.FixedSizePriorityQueue;
 import util.SymmetricArray;
 
 import java.util.ArrayList;
@@ -18,7 +17,7 @@ public class PartitionedTSPColony implements Callable<List<Integer>> {
     private float tauZero;
 
     private int iterations = 50;
-    private int numAnts = (int) (0.7 * problem.numOfCities);
+    private int numAnts;
 
     private double alpha = 15;
     private double beta = 15;
@@ -28,6 +27,7 @@ public class PartitionedTSPColony implements Callable<List<Integer>> {
 
     public PartitionedTSPColony(TravelingThiefProblem problem, List<Integer> partition) {
         this.problem = problem;
+        this.numAnts = (int) (0.7 * problem.numOfCities);
         this.partition = partition;
         initialize();
     }

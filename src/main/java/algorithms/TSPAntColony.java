@@ -12,7 +12,6 @@ import java.util.concurrent.*;
 public class TSPAntColony implements Callable<List<TSPAnt>> {
 
     private TravelingThiefProblem problem;
-    private ExecutorService pool;
 
     // Model parameters
     private int threadNum;
@@ -35,7 +34,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
     public TSPAntColony(TravelingThiefProblem problem,
                         int threadNum, int iterations, int numAnts,
                         float alpha, float beta, float qZero,
-                        float rho, float phi, boolean bestAtIteration, ExecutorService pool) {
+                        float rho, float phi, boolean bestAtIteration) {
         this.problem = problem;
 
         this.threadNum = threadNum;
@@ -61,7 +60,6 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
             pheromones.set(from, to, tauZero() * 2);
         }
         pheromones.set(ant.pi.get(problem.numOfCities - 1), 0, tauZero() * 2);
-        this.pool = pool;
     }
 
     @Override
@@ -282,6 +280,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
 
     private TSPAnt callPartitions(TSPAnt ant) throws InterruptedException, ExecutionException {
         int nThreads = 16;
+        ExecutorService pool = Executors.newFixedThreadPool(nThreads);
 
         // Split path into multiple lists
         List<List<Integer>> splits = new ArrayList<>(nThreads);
