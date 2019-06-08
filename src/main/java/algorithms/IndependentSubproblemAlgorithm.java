@@ -26,7 +26,7 @@ public class IndependentSubproblemAlgorithm implements Algorithm {
         double start = problem.idealDuration / problem.nadirPoint;
 //        start = 0.4248;
         double end = 0.7;
-        end=0.9;
+        end=1;
         int steps = (int) (1.3 * numberOfTrials);
 //        Linspace counter = new Linspace(start, 1, steps);
         Logspace counter = new Logspace(start, end, steps, 1000);

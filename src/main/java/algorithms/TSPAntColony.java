@@ -12,7 +12,6 @@ import java.util.concurrent.*;
 public class TSPAntColony implements Callable<List<TSPAnt>> {
 
     private TravelingThiefProblem problem;
-    private ExecutorService pool = Executors.newFixedThreadPool(16);
 
     // Model parameters
     private int threadNum;
@@ -108,8 +107,8 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
 
             // Find local optimum
             iterationBestAnt = localSearch(iterationBestAnt);
+            System.out.println("Iteration complete, starting partitioned search");
 
-            // TODO: Partitioned Search here
             iterationBestAnt = callPartitions(iterationBestAnt);
 
             iterationBestFitness = iterationBestAnt.travelDistance;
@@ -281,6 +280,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
 
     private TSPAnt callPartitions(TSPAnt ant) throws InterruptedException, ExecutionException {
         int nThreads = 16;
+        ExecutorService pool = Executors.newFixedThreadPool(nThreads);
 
         // Split path into multiple lists
         List<List<Integer>> splits = new ArrayList<>(nThreads);
@@ -309,7 +309,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
         for (int i = 0; i < nThreads; i++) {
             Future<List<Integer>> f = futures.get(i);
             while (!f.isDone()) {
-                Thread.sleep(500);
+                Thread.sleep(10);
             }
             List<Integer> partition = f.get();
             appendedPartitions.addAll(partition);
@@ -318,7 +318,6 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
         appendedPartitions.remove(appendedPartitions.size() - 1);
         float travelDistance = tourLength(appendedPartitions);
 
-//        System.out.println("Before: " + ant.pi.toString() + "\n" + "After: " + appendedPartitions.toString());
         ant.pi = appendedPartitions;
         ant.travelDistance = travelDistance;
 
