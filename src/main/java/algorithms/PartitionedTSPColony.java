@@ -16,7 +16,7 @@ public class PartitionedTSPColony implements Callable<List<Integer>> {
     private SymmetricArray pheromones;
     private float tauZero;
 
-    private int iterations = 50;
+    private int iterations = 500;
     private int numAnts;
 
     private double alpha = 15;
@@ -27,8 +27,8 @@ public class PartitionedTSPColony implements Callable<List<Integer>> {
 
     public PartitionedTSPColony(TravelingThiefProblem problem, List<Integer> partition) {
         this.problem = problem;
-        this.numAnts = (int) (0.7 * problem.numOfCities);
         this.partition = partition;
+        this.numAnts = (int) (0.7 * partition.size());
         initialize();
     }
 
@@ -82,6 +82,10 @@ public class PartitionedTSPColony implements Callable<List<Integer>> {
                 localPheromoneUpdate(ant.currentCity, nextCity);
             }
 
+            for (PartitionedTSPAnt ant : ants) {
+                ant = localSearch(ant);
+            }
+
             // Identify best
             for (PartitionedTSPAnt ant : ants) {
                 if (ant.travelDistance < iterationBestFitness) {
@@ -91,7 +95,6 @@ public class PartitionedTSPColony implements Callable<List<Integer>> {
             }
 
             double beforeTime = iterationBestAnt.travelDistance;
-            iterationBestAnt = localSearch(iterationBestAnt);
             iterationBestFitness = iterationBestAnt.travelDistance;
 
             // Identify best so far
