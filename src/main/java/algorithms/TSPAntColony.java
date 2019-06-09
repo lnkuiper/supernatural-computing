@@ -80,14 +80,25 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
 
             // Each ant walks simultaneously, visits each city
             for (int j = 0; j < problem.numOfCities - 1; j++) {
-                for (TSPAnt ant : ants) {
+                ants.parallelStream().forEach((ant) -> {
                     int currentCity = ant.currentCity;
                     int nextCity = weightedChoice(ant);
                     float distance = problem.euclideanDistance(currentCity, nextCity);
                     ant.step(nextCity, distance);
                     localPheromoneUpdate(currentCity, nextCity);
-                }
+                });
             }
+
+//            for (int j = 0; j < problem.numOfCities - 1; j++) {
+//                for (TSPAnt ant : ants) {
+//                    int currentCity = ant.currentCity;
+//                    int nextCity = weightedChoice(ant);
+//                    float distance = problem.euclideanDistance(currentCity, nextCity);
+//                    ant.step(nextCity, distance);
+//                    localPheromoneUpdate(currentCity, nextCity);
+//                }
+//            }
+
             // Return to initial city
             for (TSPAnt ant : ants) {
                 int currentCity = ant.currentCity;
