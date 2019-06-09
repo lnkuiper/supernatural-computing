@@ -89,29 +89,19 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
                 });
             }
 
-//            for (int j = 0; j < problem.numOfCities - 1; j++) {
-//                for (TSPAnt ant : ants) {
-//                    int currentCity = ant.currentCity;
-//                    int nextCity = weightedChoice(ant);
-//                    float distance = problem.euclideanDistance(currentCity, nextCity);
-//                    ant.step(nextCity, distance);
-//                    localPheromoneUpdate(currentCity, nextCity);
-//                }
-//            }
-
             // Return to initial city
-            for (TSPAnt ant : ants) {
+            ants.parallelStream().forEach((ant) -> {
                 int currentCity = ant.currentCity;
                 int nextCity = ant.pi.get(0);
                 float distance = problem.euclideanDistance(currentCity, nextCity);
                 ant.travelDistance += distance;
                 localPheromoneUpdate(currentCity, nextCity);
-            }
+            });
 
             // Find local optimum
-            for (TSPAnt ant : ants) {
+            ants.parallelStream().forEach((ant) -> {
                 ant = localSearch(ant);
-            }
+            });
 
             // Identify best of iteration
             for (TSPAnt ant : ants) {
