@@ -80,22 +80,28 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
 
             // Each ant walks simultaneously, visits each city
             for (int j = 0; j < problem.numOfCities - 1; j++) {
-                for (TSPAnt ant : ants) {
+                ants.parallelStream().forEach((ant) -> {
                     int currentCity = ant.currentCity;
                     int nextCity = weightedChoice(ant);
                     float distance = problem.euclideanDistance(currentCity, nextCity);
                     ant.step(nextCity, distance);
                     localPheromoneUpdate(currentCity, nextCity);
-                }
+                });
             }
+
             // Return to initial city
-            for (TSPAnt ant : ants) {
+            ants.parallelStream().forEach((ant) -> {
                 int currentCity = ant.currentCity;
                 int nextCity = ant.pi.get(0);
                 float distance = problem.euclideanDistance(currentCity, nextCity);
                 ant.travelDistance += distance;
                 localPheromoneUpdate(currentCity, nextCity);
-            }
+            });
+
+            // Find local optimum
+            ants.parallelStream().forEach((ant) -> {
+                ant = localSearch(ant);
+            });
 
             // Identify best of iteration
             for (TSPAnt ant : ants) {
@@ -105,12 +111,8 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
                 }
             }
 
-            // Find local optimum
-            iterationBestAnt = localSearch(iterationBestAnt);
-            System.out.println("Iteration complete, starting partitioned search");
-
             iterationBestAnt = callPartitions(iterationBestAnt);
-
+            iterationBestAnt = localSearch(iterationBestAnt);
             iterationBestFitness = iterationBestAnt.travelDistance;
 
             // Identify best so far
@@ -320,6 +322,8 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
 
         ant.pi = appendedPartitions;
         ant.travelDistance = travelDistance;
+
+        pool.shutdown();
 
         return ant;
     }

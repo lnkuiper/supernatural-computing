@@ -23,7 +23,7 @@ public class KNPRunner {
 
         // Create as many KNPAntColonies as there are threads
         int cores = problem.bestTours.size();
-        ExecutorService pool = Executors.newFixedThreadPool(cores*2);
+        ExecutorService pool = Executors.newFixedThreadPool(cores);
         List<Future<KNPAnt>> futures = new ArrayList<>();
         for (int threadNum = 0; threadNum < cores; threadNum++) {
             int numAnts = 5;
@@ -58,6 +58,9 @@ public class KNPRunner {
 //                bestAnt.distanceToIdealPoint = ant.distanceToIdealPoint;
             }
         }
+
+        pool.shutdown();
+
         return bestAnt;
     }
 }
