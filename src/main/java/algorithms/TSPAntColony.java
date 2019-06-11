@@ -64,7 +64,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
 
     @Override
     public List<TSPAnt> call() throws ExecutionException, InterruptedException {
-        int heapSize = 10;
+        int heapSize = 32;
         FixedSizePriorityQueue<TSPAnt> minHeap = new FixedSizePriorityQueue<>(heapSize);
         double bestFitness = Double.POSITIVE_INFINITY;
         TSPAnt bestAnt = new TSPAnt(problem.numOfCities);
@@ -133,7 +133,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
             if (!minHeap.contains(iterationBestAnt)) {
                 minHeap.add(iterationBestAnt);
             }
-            if (i % 1 == 0) {
+            if (i % 10 == 0) {
                 System.out.println(String.format("T%d, I%d: \toverall = %f, iter = %f", threadNum, i, bestFitness, iterationBestFitness));
             }
         }
@@ -281,7 +281,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
     }
 
     private TSPAnt callPartitions(TSPAnt ant) throws InterruptedException, ExecutionException {
-        int nThreads = 16;
+        int nThreads = 64;
         ExecutorService pool = Executors.newFixedThreadPool(nThreads);
 
         // Split path into multiple lists
