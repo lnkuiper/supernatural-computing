@@ -14,17 +14,17 @@ public class TSPRunner {
             throws ExecutionException, InterruptedException {
 
         // Create as many TSPAntColonies as there are processors, and add them all to a pool
-        int cores = 16; //Runtime.getRuntime().availableProcessors();
+        int cores = 1; //Runtime.getRuntime().availableProcessors();
         ExecutorService pool = Executors.newFixedThreadPool(cores);
         List<Future<List<TSPAnt>>> futures = new ArrayList<>();
         for (int threadNum = 0; threadNum < cores; threadNum++) {
-            float antFrac = (float) 0.7;
+            float antFrac = (float) 0.01;
             int numAnts = (int) (antFrac * problem.numOfCities);
             float phi = (float) 0.001; // (1 / (7*numAnts));
             float qZero = (float) 0.1;
             float rho = (float) 0.5;
             Callable<List<TSPAnt>> AC = new TSPAntColony(problem,
-                    threadNum, 100, numAnts,
+                    threadNum, 25, numAnts,
                     25, 15, qZero,
                     rho, phi, false);
             Future<List<TSPAnt>> future = pool.submit(AC);
