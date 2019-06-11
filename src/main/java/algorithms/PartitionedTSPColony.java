@@ -22,13 +22,13 @@ public class PartitionedTSPColony implements Callable<List<Integer>> {
     private double alpha = 25;
     private double beta = 15;
     private float phi = (float) 0.001;
-    private float rho = (float) 0.15;
+    private float rho = (float) 0.5;
     private double qZero = 0.1;
 
     public PartitionedTSPColony(TravelingThiefProblem problem, List<Integer> partition) {
         this.problem = problem;
         this.partition = partition;
-        this.numAnts = (int) (0.5 * partition.size());
+        this.numAnts = (int) (0.25 * partition.size());
         initialize();
     }
 

@@ -87,6 +87,9 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
                     ant.step(nextCity, distance);
                     localPheromoneUpdate(currentCity, nextCity);
                 });
+                if (j % 100 == 0) {
+                    System.out.println(j);
+                }
             }
 
             // Return to initial city
@@ -97,6 +100,8 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
                 ant.travelDistance += distance;
                 localPheromoneUpdate(currentCity, nextCity);
             });
+
+            System.out.println("Global run complete, starting local search");
 
             // Find local optimum
             ants.parallelStream().forEach((ant) -> {
@@ -111,10 +116,11 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
                 }
             }
 
-            //System.out.println("Calling partitions");
-            //iterationBestAnt = callPartitions(iterationBestAnt);
-            //iterationBestAnt = localSearch(iterationBestAnt);
-            //iterationBestFitness = iterationBestAnt.travelDistance;
+            System.out.println("Local search complete, calling partitions");
+
+            iterationBestAnt = callPartitions(iterationBestAnt);
+            iterationBestAnt = localSearch(iterationBestAnt);
+            iterationBestFitness = iterationBestAnt.travelDistance;
 
             // Identify best so far
             if (iterationBestFitness < bestFitness) {
@@ -134,7 +140,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
             if (!minHeap.contains(iterationBestAnt)) {
                 minHeap.add(iterationBestAnt);
             }
-            if (i % 10 == 0) {
+            if (i % 1 == 0) {
                 System.out.println(String.format("T%d, I%d: \toverall = %f, iter = %f", threadNum, i, bestFitness, iterationBestFitness));
             }
         }
