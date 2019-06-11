@@ -16,12 +16,12 @@ public class PartitionedTSPColony implements Callable<List<Integer>> {
     private SymmetricArray pheromones;
     private float tauZero;
 
-    private int iterations = 500;
+    public int iterations = 500;
     private int numAnts;
 
-    private double alpha = 15;
+    private double alpha = 25;
     private double beta = 15;
-    private float phi = (float) 0.01;
+    private float phi = (float) 0.001;
     private float rho = (float) 0.15;
     private double qZero = 0.1;
 
