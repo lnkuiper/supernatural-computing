@@ -16,7 +16,7 @@ public class PartitionedTSPColony implements Callable<List<Integer>> {
     private SymmetricArray pheromones;
     private float tauZero;
 
-    public int iterations = 500;
+    public int iterations = 200;
     private int numAnts;
 
     private double alpha = 25;
@@ -28,7 +28,7 @@ public class PartitionedTSPColony implements Callable<List<Integer>> {
     public PartitionedTSPColony(TravelingThiefProblem problem, List<Integer> partition) {
         this.problem = problem;
         this.partition = partition;
-        this.numAnts = (int) (0.7 * partition.size());
+        this.numAnts = (int) (0.5 * partition.size());
         initialize();
     }
 

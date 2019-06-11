@@ -126,6 +126,7 @@ public class TravelingThiefProblem {
             Collections.reverse(partToReverse);
             bestTours.add(tour);
         }
+        System.out.println("Tours loaded: " + bestTours.size());
 
         // Compute max item profit for normalization
         for (double ip : profit) {
