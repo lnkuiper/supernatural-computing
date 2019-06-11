@@ -111,9 +111,10 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
                 }
             }
 
-            iterationBestAnt = callPartitions(iterationBestAnt);
-            iterationBestAnt = localSearch(iterationBestAnt);
-            iterationBestFitness = iterationBestAnt.travelDistance;
+            //System.out.println("Calling partitions");
+            //iterationBestAnt = callPartitions(iterationBestAnt);
+            //iterationBestAnt = localSearch(iterationBestAnt);
+            //iterationBestFitness = iterationBestAnt.travelDistance;
 
             // Identify best so far
             if (iterationBestFitness < bestFitness) {
