@@ -83,7 +83,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
                 ants.parallelStream().forEach((ant) -> {
                     int currentCity = ant.currentCity;
                     int nextCity = weightedChoice(ant);
-                    float distance = problem.euclideanDistance(currentCity, nextCity);
+                    float distance = (float) Math.ceil(problem.euclideanDistance(currentCity, nextCity));
                     ant.step(nextCity, distance);
                     localPheromoneUpdate(currentCity, nextCity);
                 });
@@ -93,7 +93,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
             ants.parallelStream().forEach((ant) -> {
                 int currentCity = ant.currentCity;
                 int nextCity = ant.pi.get(0);
-                float distance = problem.euclideanDistance(currentCity, nextCity);
+                float distance = (float) Math.ceil(problem.euclideanDistance(currentCity, nextCity));
                 ant.travelDistance += distance;
                 localPheromoneUpdate(currentCity, nextCity);
             });
