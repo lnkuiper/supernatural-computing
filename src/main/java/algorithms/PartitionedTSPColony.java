@@ -16,7 +16,7 @@ public class PartitionedTSPColony implements Callable<List<Integer>> {
     private SymmetricArray pheromones;
     private float tauZero;
 
-    public int iterations = 200;
+    public int iterations = 1500;
     private int numAnts;
 
     private double alpha = 25;
