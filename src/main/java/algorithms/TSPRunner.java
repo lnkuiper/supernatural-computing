@@ -24,7 +24,7 @@ public class TSPRunner {
             float qZero = (float) 0.1;
             float rho = (float) 0.5;
             Callable<List<TSPAnt>> AC = new TSPAntColony(problem,
-                    threadNum, 25, numAnts,
+                    threadNum, 5, numAnts,
                     25, 15, qZero,
                     rho, phi, false);
             Future<List<TSPAnt>> future = pool.submit(AC);
