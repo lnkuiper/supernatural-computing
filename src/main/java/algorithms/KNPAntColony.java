@@ -201,6 +201,7 @@ public class KNPAntColony implements Callable<KNPAnt> {
 //            System.out.println(String.format("T%d, I%d: \tprofit = %f, weight = %f, time = %f", threadNum, i, bestDistance, bestAnt.weight, getTourTime(bestAnt.z)));
         }
         bestAnt.pi = this.tour;
+        bestAnt.tourTime = getTourTime(bestAnt.z);
         return bestAnt;
     }
 
@@ -354,13 +355,13 @@ public class KNPAntColony implements Callable<KNPAnt> {
                 }
             }
             if (i != problem.numOfCities - 1) {
-                double distance = problem.euclideanDistance(tour.get(i), tour.get(i+1));
+                double distance = Math.ceil(problem.euclideanDistance(tour.get(i), tour.get(i+1)));
                 for (int j = 0; j < problem.numOfItems; j++) {
                     deltaTimes[j] +=  distance/problem.speedFromWeight(weigthKnapsacks[j]);
                 }
             }
             else{
-                double distance = problem.euclideanDistance(tour.get(i), 0);
+                double distance = Math.ceil(problem.euclideanDistance(tour.get(i), 0));
                 for (int j = 0; j < problem.numOfItems; j++) {
                     deltaTimes[j] += distance / problem.speedFromWeight(weigthKnapsacks[j]);
                 }
@@ -406,7 +407,7 @@ public class KNPAntColony implements Callable<KNPAnt> {
                 }
             }
             double speed = problem.speedFromWeight(weight);
-            tourTime += problem.euclideanDistance(tour.get(i), tour.get((i+1)%problem.numOfCities)) / speed;
+            tourTime += Math.ceil(problem.euclideanDistance(tour.get(i), tour.get((i+1)%problem.numOfCities))) / speed;
         }
         return tourTime;
     }
