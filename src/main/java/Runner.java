@@ -45,9 +45,9 @@ class Runner {
         nadirMap.put("pla33810-n33809", 168432301.);
         nadirMap.put("pla33810-n338090", 169605428.);
 
-        List<String> instanceToRun = Arrays.asList("a280-n279");
-//        List<String> instanceToRun = Arrays.asList("a280-n1395");
-//        List<String> instanceToRun = Arrays.asList("a280-n2790");
+//        List<String> instanceToRun = Arrays.asList("a280-n279");
+        List<String> instanceToRun = Arrays.asList("a280-n1395");
+//        List<String> instanceToRun = Arrays.asListgit ("a280-n2790");
 //        List<String> instanceToRun = Arrays.asList("fnl4461-n4460");
 //        List<String> instanceToRun = Arrays.asList("fnl4461_n22300");
 //        List<String> instanceToRun = Arrays.asList("fnl4461_n44600");
@@ -56,7 +56,7 @@ class Runner {
 //        List<String> instanceToRun = Arrays.asList("pla33810_n338090");
         //List<String> instanceToRun = Competition.INSTANCES;
 
-        boolean runTSP = true;
+        boolean runTSP = false;
         boolean runKNP = true;
 
         for (String instance : instanceToRun) {

@@ -5,7 +5,6 @@ import model.Solution;
 import model.TravelingThiefProblem;
 import util.Linspace;
 import util.Logspace;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -24,10 +23,9 @@ public class IndependentSubproblemAlgorithm implements Algorithm {
         NonDominatedSet nds = new NonDominatedSet();
 
         double start = problem.idealDuration / problem.nadirPoint;
-//        start = 0.4248;
-        double end = 0.7;
-        end=1;
-        int steps = (int) (1.3 * numberOfTrials);
+//        start = 1.0;
+        double end = 1.0;
+        int steps = (int) (2 * numberOfTrials);
 //        Linspace counter = new Linspace(start, 1, steps);
         Logspace counter = new Logspace(start, end, steps, 1000);
 //        while (counter.hasNext()) {

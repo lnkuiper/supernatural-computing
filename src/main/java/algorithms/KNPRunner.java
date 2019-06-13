@@ -26,12 +26,12 @@ public class KNPRunner {
         ExecutorService pool = Executors.newFixedThreadPool(cores);
         List<Future<KNPAnt>> futures = new ArrayList<>();
         for (int threadNum = 0; threadNum < cores; threadNum++) {
-            int numAnts = 5;
+            int numAnts = 12;
             float phi = (float) 0.05;
             float qZero = (float) 0.1;
-            float rho = (float) 0.5;
+            float rho = (float) 0.6;
             Callable<KNPAnt> AC = new KNPAntColony(problem,
-                    threadNum, 3, numAnts,
+                    threadNum, 15, numAnts,
                     (float) 0.6, 20, qZero,
                     rho, phi, false,
                     1,c, threadNum);
