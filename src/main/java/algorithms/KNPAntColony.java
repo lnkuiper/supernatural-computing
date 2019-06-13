@@ -70,16 +70,6 @@ public class KNPAntColony implements Callable<KNPAnt> {
         this.basicTourTime = getTourTime(new boolean[problem.numOfItems]);
         this.maxTime  = c * (problem.nadirPoint - problem.idealDuration) + problem.idealDuration;
         initialize();
-//        KNPAnt ant = new KNPAnt(problem.numOfItems, basicTourTime);
-//        ant.z = greedyPackingPlan;
-//        ant.weight = greedyWeight;
-//        ant.profit = greedyProfit;
-//        ant = localSearch(ant);
-//        for (int i = 0; i < problem.numOfItems; i++) {
-//            if (ant.z[i]) {
-//                pheromones[i] *= 3;
-//            }
-//        }
     }
 
     private void initialize() {
@@ -145,17 +135,13 @@ public class KNPAntColony implements Callable<KNPAnt> {
             boolean[] fullAnt = new boolean[numAnts];
             // Each ant walks simultaneously, visits each city
             for (int j = 0; j < greedyNumItems; j++) {
-                int k = 0;
-                for (KNPAnt ant : ants) {
-                    if(!fullAnt[k]) {
-//                        if(i == 0){
-//                            setDeltaTimes(ant);
-//                        }
+                ants.parallelStream().forEach((ant) -> {
+                    if(!ant.full) {
                         ant = setDeltaTimes(ant);
 
                         int nextItem = weightedChoice(ant);
                         if (nextItem == -1) {
-                            fullAnt[k] = true;
+                            ant.full = true;
                         }
                         else {
                             double weight = problem.weight[nextItem];
@@ -164,9 +150,7 @@ public class KNPAntColony implements Callable<KNPAnt> {
                             localPheromoneUpdate(nextItem);
                         }
                     }
-                    k++;
-
-                }
+                });
             }
 
             // Identify best of iteration

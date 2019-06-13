@@ -27,12 +27,13 @@ public class KNPRunner {
         List<Future<KNPAnt>> futures = new ArrayList<>();
         for (int threadNum = 0; threadNum < cores; threadNum++) {
             int numAnts = 5;
+            float alpha = (float) 0.6;
             float phi = (float) 0.05;
             float qZero = (float) 0.1;
             float rho = (float) 0.5;
             Callable<KNPAnt> AC = new KNPAntColony(problem,
                     threadNum, 3, numAnts,
-                    (float) 0.6, 20, qZero,
+                    alpha, 20, qZero,
                     rho, phi, false,
                     1,c, threadNum);
             Future<KNPAnt> future = pool.submit(AC);
@@ -50,12 +51,6 @@ public class KNPRunner {
             if (ant.distanceToIdealPoint < bestDistance) {
                 bestDistance = ant.distanceToIdealPoint;
                 bestAnt = ant;
-//                bestAnt.z = ant.z;
-//                bestAnt.pi = ant.pi;
-//                bestAnt.profit = ant.profit;
-//                bestAnt.weight = ant.weight;
-//                bestAnt.tourTime = ant.tourTime;
-//                bestAnt.distanceToIdealPoint = ant.distanceToIdealPoint;
             }
         }
 

@@ -12,6 +12,7 @@ public class KNPAnt implements Comparable<KNPAnt>{
     public double distanceToIdealPoint;
     public double[] deltaTimes;
     public double maxItemDeltaTimes;
+    public boolean full = false;
 
     public KNPAnt(int numOfItems, double basicTourTime) {
         this.z = new boolean[numOfItems];

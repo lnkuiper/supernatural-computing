@@ -48,8 +48,8 @@ class Runner {
 //        List<String> instanceToRun = Arrays.asList("a280-n279");
 //        List<String> instanceToRun = Arrays.asList("a280-n1395");
 //        List<String> instanceToRun = Arrays.asList("fnl4461-n4460");
-        List<String> instanceToRun = Arrays.asList("pla33810-n33809");
-        //List<String> instanceToRun = Competition.INSTANCES;
+//        List<String> instanceToRun = Arrays.asList("pla33810-n33809");
+        List<String> instanceToRun = Competition.INSTANCES;
 
         for (String instance : instanceToRun) {
 
@@ -69,14 +69,14 @@ class Runner {
             int numOfSolutions = Competition.numberOfSolutions(problem);
 
             // TSP testing
-            TSPRunner allColonies = new TSPRunner();
-            List<List<Integer>> tours = allColonies.computeTours(problem);
-            FileOutputStream fos = new FileOutputStream("savedTours/" + problem.name.split("-")[0] + ".obj");
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(tours);
-            oos.close();
-            fos.close();
-            System.exit(0);
+//            TSPRunner allColonies = new TSPRunner();
+//            List<List<Integer>> tours = allColonies.computeTours(problem);
+//            FileOutputStream fos = new FileOutputStream("savedTours/" + problem.name.split("-")[0] + ".obj");
+//            ObjectOutputStream oos = new ObjectOutputStream(fos);
+//            oos.writeObject(tours);
+//            oos.close();
+//            fos.close();
+//            System.exit(0);
 
             // Actual submission stuff
             Algorithm algorithm = new IndependentSubproblemAlgorithm(numOfSolutions);
