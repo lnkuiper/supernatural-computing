@@ -47,9 +47,13 @@ class Runner {
 
 //        List<String> instanceToRun = Arrays.asList("a280-n279");
 //        List<String> instanceToRun = Arrays.asList("a280-n1395");
+//        List<String> instanceToRun = Arrays.asList("a280-n2790");
 //        List<String> instanceToRun = Arrays.asList("fnl4461-n4460");
 //        List<String> instanceToRun = Arrays.asList("pla33810-n33809");
         List<String> instanceToRun = Competition.INSTANCES;
+
+        boolean runTSP = false;
+        boolean runKNP = true;
 
         for (String instance : instanceToRun) {
 
@@ -68,15 +72,21 @@ class Runner {
             // number of solutions that will be finally necessary for submission - not used here
             int numOfSolutions = Competition.numberOfSolutions(problem);
 
-            // TSP testing
-//            TSPRunner allColonies = new TSPRunner();
-//            List<List<Integer>> tours = allColonies.computeTours(problem);
-//            FileOutputStream fos = new FileOutputStream("savedTours/" + problem.name.split("-")[0] + ".obj");
-//            ObjectOutputStream oos = new ObjectOutputStream(fos);
-//            oos.writeObject(tours);
-//            oos.close();
-//            fos.close();
-//            System.exit(0);
+            if(runTSP){
+                System.out.println("Starting TSP on problem " + instance);
+                // TSP testing
+                TSPRunner allColonies = new TSPRunner();
+                List<List<Integer>> tours = allColonies.computeTours(problem);
+                FileOutputStream fos = new FileOutputStream("savedTours/" + problem.name.split("-")[0] + ".obj");
+                ObjectOutputStream oos = new ObjectOutputStream(fos);
+                oos.writeObject(tours);
+                oos.close();
+                fos.close();
+            }
+            if(!runKNP) {
+                System.exit(0);
+            }
+            System.out.println("Starting KNP on problem " + instance);
 
             // Actual submission stuff
             Algorithm algorithm = new IndependentSubproblemAlgorithm(numOfSolutions);
