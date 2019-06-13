@@ -3,7 +3,6 @@ package algorithms;
 import model.TravelingThiefProblem;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.Callable;
 
@@ -115,7 +114,6 @@ public class KNPAntColony implements Callable<KNPAnt> {
             greedyNumItems++;
             i++;
         }
-//        System.out.println(String.format("greedyProfit computed: %f profit, %d items", greedyProfit, greedyNumItems));
     }
 
     @Override
@@ -165,7 +163,6 @@ public class KNPAntColony implements Callable<KNPAnt> {
 
             iterationBestAnt = localSearch(iterationBestAnt);
             iterationBestDistance = iterationBestAnt.profit;
-//            bestAnt.tourTime = getTourTime(bestAnt.z);
 
             // Identify best so far
             if (iterationBestDistance > bestDistance) {
@@ -181,8 +178,6 @@ public class KNPAntColony implements Callable<KNPAnt> {
             else {
                 globalPheromoneUpdate(bestAnt);
             }
-
-//            System.out.println(String.format("T%d, I%d: \tprofit = %f, weight = %f, time = %f", threadNum, i, bestDistance, bestAnt.weight, getTourTime(bestAnt.z)));
         }
         bestAnt.pi = this.tour;
         bestAnt.tourTime = getTourTime(bestAnt.z);
@@ -249,19 +244,6 @@ public class KNPAntColony implements Callable<KNPAnt> {
         return randomIndex;
     }
 
-    private int getIntFromPairList(List<Pair<Integer, Double>> toSearch, int findMe)
-    {
-        for(int i = 0 ; i < toSearch.size() ; i++)
-        {
-            if(toSearch.get(i).getLeft() == findMe)
-            {
-                return i;
-            }
-        }
-        return -1;
-
-    }
-
     private KNPAnt localSearch(KNPAnt ant) {
         // Bit flip
         boolean improved = true;
@@ -289,13 +271,7 @@ public class KNPAntColony implements Callable<KNPAnt> {
                         ant.z[i] = false;
                         ant.z[bestItem] = true;
 
-                        // This:
                         ant.tourTime = getTourTime(ant.z);
-                        // Used to be:
-                        // ant.tourTime = ant.tourTime - deltaTimes[i] + deltaTimes[bestItem];
-                        // This is incorrect since removing an item changes everything
-                        // recomputing costs a lot, though...
-
                         double weightChange = problem.weight[i] - problem.weight[bestItem];
                         double profitChange = problem.profit[i] - problem.profit[bestItem];
                         ant.weight -= weightChange;
@@ -318,7 +294,7 @@ public class KNPAntColony implements Callable<KNPAnt> {
     }
 
 
-    public double[] calculateDeltaTimes(List<Integer> tour, boolean[] z){
+    private double[] calculateDeltaTimes(List<Integer> tour, boolean[] z){
         double currentTourTime = getTourTime(z);
         double[] deltaTimes = new double[problem.numOfItems];
 
@@ -374,11 +350,6 @@ public class KNPAntColony implements Callable<KNPAnt> {
                 pheromones[i] = (1 - rho) * pheromones[i] + rho * deltaTau;
             }
         }
-
-        // TODO: think about these ideas
-        // Ideas from sudoku paper to prevent stagnation:
-        // Add best profit pheromone evaporation?
-        // There is no global evaporation of pheromone in ACS, might want to add?
     }
 
     private double getTourTime(boolean[] z){
@@ -396,10 +367,9 @@ public class KNPAntColony implements Callable<KNPAnt> {
         return tourTime;
     }
 
-    public double itemEta(int i, KNPAnt ant) {
+    private double itemEta(int i, KNPAnt ant) {
         return (problem.profit[i]/problem.maxItemProfit) / (w * problem.weight[i]/problem.maxItemWeight + (1 - w) * ant.deltaTimes[i]/ant.maxItemDeltaTimes);
     }
-
 
     private KNPAnt setDeltaTimes(KNPAnt ant)
     {

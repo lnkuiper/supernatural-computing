@@ -1,11 +1,7 @@
 package algorithms;
 
 import model.TravelingThiefProblem;
-import util.FixedSizePriorityQueue;
-import util.Vector;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
 

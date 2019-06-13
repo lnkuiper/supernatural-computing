@@ -140,9 +140,7 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
             if (!minHeap.contains(iterationBestAnt)) {
                 minHeap.add(iterationBestAnt);
             }
-            if (i % 1 == 0) {
-                System.out.println(String.format("T%d, I%d: \toverall = %f, iter = %f", threadNum, i, bestFitness, iterationBestFitness));
-            }
+            System.out.println(String.format("T%d, I%d: \toverall = %f, iter = %f", threadNum, i, bestFitness, iterationBestFitness));
         }
 
         // Add best tours to list
@@ -280,11 +278,6 @@ public class TSPAntColony implements Callable<List<TSPAnt>> {
 
         float pheromoneVal = (1 - rho) * pheromones.get(from, to) + rho * deltaTau;
         pheromones.set(from, to, pheromoneVal);
-
-        // TODO: think about these ideas
-        // Ideas from sudoku paper to prevent stagnation:
-        // Add best profit pheromone evaporation?
-        // There is no global evaporation of pheromone in ACS, might want to add?
     }
 
     private TSPAnt callPartitions(TSPAnt ant) throws InterruptedException, ExecutionException {

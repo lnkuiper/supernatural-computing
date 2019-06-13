@@ -37,7 +37,7 @@ public class IndependentSubproblemAlgorithm implements Algorithm {
             }
             Solution s = problem.evaluate(bestAnt.pi, z, true);
             nds.add(s);
-            System.out.println(i + ":" + nds.entries.size() + " " + c + ", TIME: " + bestAnt.tourTime + ", MAXTIME: " + (c * (problem.nadirPoint - problem.idealDuration) + problem.idealDuration) + ", PROFIT: " + bestAnt.profit + ", WEIGHT: " + bestAnt.weight);
+            System.out.println(i + ":" + nds.entries.size() + " " + c + ", TIME: " + bestAnt.tourTime + ", MAXTIME: " + (c * problem.nadirPoint) + ", PROFIT: " + bestAnt.profit + ", WEIGHT: " + bestAnt.weight);
             i++;
         }
         System.out.println("Before: " + nds.entries.size());
