@@ -45,10 +45,15 @@ class Runner {
         nadirMap.put("pla33810-n33809", 168432301.);
         nadirMap.put("pla33810-n338090", 169605428.);
 
-//        List<String> instanceToRun = Arrays.asList("a280-n279");
+        List<String> instanceToRun = Arrays.asList("a280-n279");
 //        List<String> instanceToRun = Arrays.asList("a280-n1395");
+//        List<String> instanceToRun = Arrays.asList("a280-n2790");
 //        List<String> instanceToRun = Arrays.asList("fnl4461-n4460");
-        List<String> instanceToRun = Arrays.asList("pla33810-n33809");
+//        List<String> instanceToRun = Arrays.asList("fnl4461_n22300");
+//        List<String> instanceToRun = Arrays.asList("fnl4461_n44600");
+//        List<String> instanceToRun = Arrays.asList("pla33810_n33809");
+//        List<String> instanceToRun = Arrays.asList("pla33810_n169045");
+//        List<String> instanceToRun = Arrays.asList("pla33810_n338090");
         //List<String> instanceToRun = Competition.INSTANCES;
 
         for (String instance : instanceToRun) {
@@ -58,7 +63,7 @@ class Runner {
             InputStream is = LOADER.getResourceAsStream(fname);
             System.out.println(instance);
             TravelingThiefProblem problem = Util.readProblem(is);
-            problem.name = instance;
+            problem.name = instance
             problem.initialize();
 
             problem.idealDuration = durationMap.get(instance.split("-")[0]) * 1.;
