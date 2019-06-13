@@ -91,6 +91,7 @@ class Runner {
                 System.exit(0);
             }
             System.out.println("Starting KNP on problem " + instance);
+
             // Actual submission stuff
             Algorithm algorithm = new IndependentSubproblemAlgorithm(numOfSolutions);
             List<Solution> nds = algorithm.solve(problem);

@@ -23,15 +23,9 @@ public class IndependentSubproblemAlgorithm implements Algorithm {
         NonDominatedSet nds = new NonDominatedSet();
 
         double start = problem.idealDuration / problem.nadirPoint;
-//        start = 1.0;
         double end = 1.0;
         int steps = (int) (2 * numberOfTrials);
-//        Linspace counter = new Linspace(start, 1, steps);
         Logspace counter = new Logspace(start, end, steps, 1000);
-//        while (counter.hasNext()) {
-//            System.out.println(counter.next());
-//        }
-//        System.exit(0);
         int i = 0;
         while (counter.hasNext()) {
             double c = counter.next();
