@@ -56,6 +56,9 @@ class Runner {
 //        List<String> instanceToRun = Arrays.asList("pla33810_n338090");
         //List<String> instanceToRun = Competition.INSTANCES;
 
+        boolean runTSP = true;
+        boolean runKNP = true;
+
         for (String instance : instanceToRun) {
 
             // readProblem the problem from the file
@@ -63,7 +66,7 @@ class Runner {
             InputStream is = LOADER.getResourceAsStream(fname);
             System.out.println(instance);
             TravelingThiefProblem problem = Util.readProblem(is);
-            problem.name = instance
+            problem.name = instance;
             problem.initialize();
 
             problem.idealDuration = durationMap.get(instance.split("-")[0]) * 1.;
@@ -73,16 +76,21 @@ class Runner {
             // number of solutions that will be finally necessary for submission - not used here
             int numOfSolutions = Competition.numberOfSolutions(problem);
 
-            // TSP testing
-            TSPRunner allColonies = new TSPRunner();
-            List<List<Integer>> tours = allColonies.computeTours(problem);
-            FileOutputStream fos = new FileOutputStream("savedTours/" + problem.name.split("-")[0] + ".obj");
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(tours);
-            oos.close();
-            fos.close();
-            System.exit(0);
-
+            if(runTSP){
+                System.out.println("Starting TSP on problem " + instance);
+                // TSP testing
+                TSPRunner allColonies = new TSPRunner();
+                List<List<Integer>> tours = allColonies.computeTours(problem);
+                FileOutputStream fos = new FileOutputStream("savedTours/" + problem.name.split("-")[0] + ".obj");
+                ObjectOutputStream oos = new ObjectOutputStream(fos);
+                oos.writeObject(tours);
+                oos.close();
+                fos.close();
+            }
+            if(!runKNP) {
+                System.exit(0);
+            }
+            System.out.println("Starting KNP on problem " + instance);
             // Actual submission stuff
             Algorithm algorithm = new IndependentSubproblemAlgorithm(numOfSolutions);
             List<Solution> nds = algorithm.solve(problem);
