@@ -74,14 +74,14 @@ class Runner {
             int numOfSolutions = Competition.numberOfSolutions(problem);
 
             // TSP testing
-//            TSPRunner allColonies = new TSPRunner();
-//            List<List<Integer>> tours = allColonies.computeTours(problem);
-//            FileOutputStream fos = new FileOutputStream("savedTours/" + problem.name.split("-")[0] + ".obj");
-//            ObjectOutputStream oos = new ObjectOutputStream(fos);
-//            oos.writeObject(tours);
-//            oos.close();
-//            fos.close();
-//            System.exit(0);
+            TSPRunner allColonies = new TSPRunner();
+            List<List<Integer>> tours = allColonies.computeTours(problem);
+            FileOutputStream fos = new FileOutputStream("savedTours/" + problem.name.split("-")[0] + ".obj");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(tours);
+            oos.close();
+            fos.close();
+            System.exit(0);
 
             // Actual submission stuff
             Algorithm algorithm = new IndependentSubproblemAlgorithm(numOfSolutions);
