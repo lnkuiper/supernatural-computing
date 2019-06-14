@@ -33,7 +33,14 @@ public class IndependentSubproblemAlgorithm implements Algorithm {
         }
         cs.parallelStream().forEach((c) -> {
             KNPRunner runner = new KNPRunner(c);
-            KNPAnt bestAnt = runner.computePackingPlan(problem);
+            KNPAnt bestAnt = null;
+            try {
+                bestAnt = runner.computePackingPlan(problem);
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             List<Boolean> z = new ArrayList<>(problem.numOfItems);
             for (int j = 0; j < problem.numOfItems; j++) {
                 z.add(bestAnt.z[j]);
