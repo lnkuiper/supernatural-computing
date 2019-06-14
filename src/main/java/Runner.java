@@ -1,11 +1,8 @@
 import algorithms.*;
-//import algorithms.KNPRunner;
 import model.Solution;
 import model.TravelingThiefProblem;
-import util.Linspace;
 
 import java.io.*;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +18,8 @@ class Runner {
         HashMap<String, Double> profitMap = new HashMap<>();
         HashMap<String, Double> nadirMap = new HashMap<>();
 
+        // These values are from the competition website
+        // Help with optimizing towards the objective
         durationMap.put("a280", 2613.);
         durationMap.put("fnl4461", 185359.);
         durationMap.put("pla33810", 66048945.);

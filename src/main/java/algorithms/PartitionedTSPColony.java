@@ -94,7 +94,6 @@ public class PartitionedTSPColony implements Callable<List<Integer>> {
                 }
             }
 
-            double beforeTime = iterationBestAnt.travelDistance;
             iterationBestFitness = iterationBestAnt.travelDistance;
 
             // Identify best so far
