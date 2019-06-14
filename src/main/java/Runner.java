@@ -50,7 +50,7 @@ class Runner {
 //        List<String> instanceToRun = Arrays.asListgit ("a280-n2790");
 //        List<String> instanceToRun = Arrays.asList("fnl4461-n4460");
 //        List<String> instanceToRun = Arrays.asList("pla33810-n33809");
-        List<String> instanceToRun = Competition.INSTANCES.subList(2, 9);
+        List<String> instanceToRun = Competition.INSTANCES.subList(4, 9);
 
         boolean runTSP = false;
         boolean runKNP = true;
@@ -65,7 +65,7 @@ class Runner {
             problem.name = instance;
             problem.initialize();
 
-            problem.idealDuration = durationMap.get(instance.split("-")[0]) * 1.;
+            problem.idealDuration = durationMap.get(instance.split("-")[0]) * 1.04;
             problem.idealProfit = profitMap.get(instance);
             problem.nadirPoint = nadirMap.get(instance) * 1.05;
 

@@ -24,11 +24,14 @@ public class IndependentSubproblemAlgorithm implements Algorithm {
 
         double start = problem.idealDuration / problem.nadirPoint;
         double end = 1.0;
-        int steps = (int) (2 * numberOfTrials);
+        int steps = (int) (1.2 * numberOfTrials);
         Logspace counter = new Logspace(start, end, steps, 1000);
         int i = 0;
+        List<Double> cs = new ArrayList<>();
         while (counter.hasNext()) {
-            double c = counter.next();
+            cs.add(counter.next());
+        }
+        cs.parallelStream().forEach((c) -> {
             KNPRunner runner = new KNPRunner(c);
             KNPAnt bestAnt = runner.computePackingPlan(problem);
             List<Boolean> z = new ArrayList<>(problem.numOfItems);
@@ -37,9 +40,8 @@ public class IndependentSubproblemAlgorithm implements Algorithm {
             }
             Solution s = problem.evaluate(bestAnt.pi, z, true);
             nds.add(s);
-            System.out.println(i + ":" + nds.entries.size() + " " + c + ", TIME: " + bestAnt.tourTime + ", MAXTIME: " + (c * (problem.nadirPoint - problem.idealDuration) + problem.idealDuration) + ", PROFIT: " + bestAnt.profit + ", WEIGHT: " + bestAnt.weight);
-            i++;
-        }
+            System.out.println(nds.entries.size() + " " + c + ", TIME: " + bestAnt.tourTime + ", MAXTIME: " + (c * (problem.nadirPoint - problem.idealDuration) + problem.idealDuration) + ", PROFIT: " + bestAnt.profit + ", WEIGHT: " + bestAnt.weight);
+        });
         System.out.println("Before: " + nds.entries.size());
         List<Solution> bestSolutions = nds.getBestSolutions(numberOfTrials);
         System.out.println("After: " + bestSolutions.size());

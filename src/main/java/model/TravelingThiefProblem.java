@@ -65,10 +65,6 @@ public class TravelingThiefProblem {
     public double idealProfit;
     public double nadirPoint;
 
-    // TODO: We want to limit time spent to create the curve, instead of knapsack capacity
-    // TODO: Initialize minTime (tour without picking up items), and maxTime (picking up maximum profit along the tour)
-    // TODO: We limit time to "minTime + (maxTime - minTime) * w" (w between 0-1), and adjust w in itemEta accordingly
-
     /**
      * Initialize the problem by saving for each city the items to pick
      */
@@ -108,8 +104,6 @@ public class TravelingThiefProblem {
             greedyTour.add(currentCity);
         }
         greedyDistance += euclideanDistance(currentCity, 0);
-//        System.out.println(String.format("greedyDistance computed: %f", greedyDistance));
-
 
         File toursFile = new File("savedTours/" + name.split("-")[0] + ".obj");
         if (toursFile.exists()) {
@@ -117,6 +111,7 @@ public class TravelingThiefProblem {
             ObjectInputStream ois = new ObjectInputStream(fis);
             bestTours = (ArrayList<List<Integer>>) ois.readObject();
         }
+        bestTours = bestTours.subList(0, 2);
         List<List<Integer>> reverseTours = new ArrayList<>();
         for (int i = 0; i < bestTours.size(); i++) {
             reverseTours.add(bestTours.get(i));
