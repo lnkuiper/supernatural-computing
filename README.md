@@ -13,3 +13,8 @@ You might have to supply the extra command line option `-Xms -Xmx -Xss` to give 
 ```
 java -Xms50G -Xmx400G -Xss5G
 ```
+
+Additional libraries can be added as JAR files by supplying the following arguments to the compile and run commands:
+```
+-cp {path/to/jar}:.
+```
