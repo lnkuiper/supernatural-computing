@@ -49,7 +49,7 @@ class Runner {
 //        List<String> instanceToRun = Arrays.asListgit ("a280-n2790");
 //        List<String> instanceToRun = Arrays.asList("fnl4461-n4460");
 //        List<String> instanceToRun = Arrays.asList("pla33810-n33809");
-        List<String> instanceToRun = Competition.INSTANCES.subList(4, 9);
+        List<String> instanceToRun = Competition.INSTANCES.subList(5, 9);
 
         boolean runTSP = false;
         boolean runKNP = true;

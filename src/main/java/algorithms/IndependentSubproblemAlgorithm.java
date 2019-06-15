@@ -7,6 +7,7 @@ import util.Linspace;
 import util.Logspace;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 
 public class IndependentSubproblemAlgorithm implements Algorithm {
@@ -23,11 +24,14 @@ public class IndependentSubproblemAlgorithm implements Algorithm {
         NonDominatedSet nds = new NonDominatedSet();
 
         double start = problem.idealDuration / problem.nadirPoint;
-        double end = 1.0;
+        double end = problem.idealDuration * 1.1 / problem.nadirPoint;
         int steps = (int) (1.2 * numberOfTrials);
-        Logspace counter = new Logspace(start, end, steps, 1000);
-        int i = 0;
+        //Logspace counter = new Logspace(start, end, steps, 100000);
+        Linspace counter = new Linspace(start, end, steps);
         List<Double> cs = new ArrayList<>();
+        cs.add(0.0);
+        cs.add(0.7);
+        cs.add(0.55);
         while (counter.hasNext()) {
             cs.add(counter.next());
         }

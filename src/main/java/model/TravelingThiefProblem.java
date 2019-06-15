@@ -111,7 +111,7 @@ public class TravelingThiefProblem {
             ObjectInputStream ois = new ObjectInputStream(fis);
             bestTours = (ArrayList<List<Integer>>) ois.readObject();
         }
-        bestTours = bestTours.subList(0, 2);
+        bestTours = bestTours.subList(0, 1);
         List<List<Integer>> reverseTours = new ArrayList<>();
         for (int i = 0; i < bestTours.size(); i++) {
             reverseTours.add(bestTours.get(i));
@@ -119,7 +119,7 @@ public class TravelingThiefProblem {
         for (List<Integer> tour : reverseTours) {
             List<Integer> partToReverse = tour.subList(1, numOfCities - 1);
             Collections.reverse(partToReverse);
-            bestTours.add(tour);
+            //bestTours.add(tour);
         }
         System.out.println("Tours loaded: " + bestTours.size());
 

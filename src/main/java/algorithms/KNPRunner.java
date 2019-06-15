@@ -22,7 +22,7 @@ public class KNPRunner {
         ExecutorService pool = Executors.newFixedThreadPool(cores);
         List<Future<KNPAnt>> futures = new ArrayList<>();
         for (int threadNum = 0; threadNum < cores; threadNum++) {
-            int numAnts = 2;
+            int numAnts = 1;
             float alpha = (float) 0.6;
             float phi = (float) 0.05;
             float qZero = (float) 0.1;

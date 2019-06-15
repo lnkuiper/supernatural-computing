@@ -109,7 +109,7 @@ public class KNPAntColony implements Callable<KNPAnt> {
         Arrays.sort(weightCopy);
         weight = 0;
         int i = 0;
-        while (weight + weightCopy[i] < problem.maxWeight * c) {
+        while (weight + weightCopy[i] < problem.maxWeight * c && i < (int) (0.3 * problem.numOfItems)) {
             weight += weightCopy[i];
             greedyNumItems++;
             i++;
