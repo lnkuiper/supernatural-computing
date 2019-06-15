@@ -1,7 +1,15 @@
 # supernatural-computing
+Repository for team SuperNatural's Natural Computing 2019 Project, for the GECCO 2019 Bi-objective Traveling Thief Competition.
 
-// TODO:
-1. Limit the time an ant can spend instead of his knapsack capacity (to create Pareto front)
-2. Make ant pick up more items at the end if above point does not force this already
-3. Partitioned TSP
-4. Think about parameter `w`
+WARNING: this program uses a lot of time, threads and memory, especially for the larger problems.
+
+Build and run using the following commands (JDK 1.8) in the `src/main/java/` folder:
+```
+javac Runner.java
+java Runner
+```
+
+You might have to supply the extra command line option `-Xms -Xmx -Xss` to give the program more memory e.g.:
+```
+java -Xms50G -Xmx400G -Xss5G
+```
